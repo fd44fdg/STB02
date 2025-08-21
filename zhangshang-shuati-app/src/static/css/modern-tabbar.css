@@ -1,0 +1,123 @@
+/* 现代化导航栏样式 */
+
+/* 针对H5环境的现代化tabBar增强 */
+/* #ifdef H5 */
+
+/* 主容器样式优化 */
+.uni-tabbar {
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  background: rgba(250, 250, 250, 0.85) !important;
+  border-top: 0.5px solid rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 -1px 20px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* 导航项现代化效果 */
+.uni-tabbar-item {
+  position: relative !important;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+}
+
+.uni-tabbar-item:hover {
+  transform: translateY(-2px) !important;
+  background: rgba(0, 122, 255, 0.05) !important;
+  border-radius: 12px !important;
+}
+
+/* 激活状态的现代化设计 */
+.uni-tabbar-item.uni-tabbar-item-active {
+  background: linear-gradient(135deg, rgba(0, 122, 255, 0.1), rgba(0, 122, 255, 0.05)) !important;
+  border-radius: 12px !important;
+  transform: translateY(-1px) !important;
+}
+
+/* 文本样式现代化 */
+.uni-tabbar-item .uni-tabbar-item-text {
+  font-weight: 500 !important;
+  font-size: 10px !important;
+  letter-spacing: 0.2px !important;
+  margin-top: 2px !important;
+  transition: all 0.3s ease !important;
+}
+
+.uni-tabbar-item.uni-tabbar-item-active .uni-tabbar-item-text {
+  color: #007AFF !important;
+  font-weight: 600 !important;
+  text-shadow: 0 0 8px rgba(0, 122, 255, 0.3) !important;
+}
+
+/* emoji图标现代化增强 */
+.uni-tabbar-item-text::first-letter {
+  font-size: 18px !important;
+  line-height: 1 !important;
+  margin-right: 2px !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) !important;
+  transition: all 0.3s ease !important;
+}
+
+.uni-tabbar-item.uni-tabbar-item-active .uni-tabbar-item-text::first-letter {
+  transform: scale(1.15) !important;
+  filter: drop-shadow(0 2px 8px rgba(0, 122, 255, 0.4)) !important;
+}
+
+/* 现代化激活指示器 */
+.uni-tabbar-item.uni-tabbar-item-active::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 4px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 24px !important;
+  height: 2px !important;
+  background: linear-gradient(90deg, #007AFF, #5AC8FA) !important;
+  border-radius: 1px !important;
+  box-shadow: 0 0 8px rgba(0, 122, 255, 0.5) !important;
+  animation: pulse 2s infinite !important;
+}
+
+/* 脉冲动画 */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: translateX(-50%) scale(0.95);
+  }
+}
+
+/* 微交互动画 */
+.uni-tabbar-item:active {
+  transform: translateY(0) scale(0.95) !important;
+}
+
+/* 深色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .uni-tabbar {
+    background: rgba(28, 28, 30, 0.85) !important;
+    border-top-color: rgba(255, 255, 255, 0.1) !important;
+  }
+  
+  .uni-tabbar-item:hover {
+    background: rgba(0, 122, 255, 0.15) !important;
+  }
+  
+  .uni-tabbar-item.uni-tabbar-item-active {
+    background: linear-gradient(135deg, rgba(0, 122, 255, 0.2), rgba(0, 122, 255, 0.1)) !important;
+  }
+}
+
+/* 平滑过渡效果 */
+* {
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+/* #endif */
+
+/* 全平台通用样式 */
+page {
+  --tabbar-text-color: #8E8E93;
+  --tabbar-active-color: #007AFF;
+  --tabbar-bg-color: #FAFAFA;
+}

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生成TabBar图标</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #f5f5f5;
+        }
+        .icon-generator {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 10px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .icon-canvas {
+            border: 1px solid #ddd;
+            margin: 10px;
+        }
+        .download-btn {
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .download-btn:hover {
+            background: #0056CC;
+        }
+        .icon-preview {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>TabBar图标生成工具</h1>
+    <p>使用Unicode字符生成tabBar所需的PNG图标</p>
+
+    <div class="icon-generator">
+        <h3>首页图标 (⌂)</h3>
+        <div class="icon-preview">
+            <canvas id="home-normal" width="96" height="96" class="icon-canvas"></canvas>
+            <canvas id="home-active" width="96" height="96" class="icon-canvas"></canvas>
+            <div>
+                <button class="download-btn" onclick="downloadIcon('home-normal')">下载灰色版</button>
+                <button class="download-btn" onclick="downloadIcon('home-active')">下载蓝色版</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="icon-generator">
+        <h3>刷题图标 (⚙)</h3>
+        <div class="icon-preview">
+            <canvas id="practice-normal" width="96" height="96" class="icon-canvas"></canvas>
+            <canvas id="practice-active" width="96" height="96" class="icon-canvas"></canvas>
+            <div>
+                <button class="download-btn" onclick="downloadIcon('practice-normal')">下载灰色版</button>
+                <button class="download-btn" onclick="downloadIcon('practice-active')">下载蓝色版</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="icon-generator">
+        <h3>考试图标 (⚐)</h3>
+        <div class="icon-preview">
+            <canvas id="exam-normal" width="96" height="96" class="icon-canvas"></canvas>
+            <canvas id="exam-active" width="96" height="96" class="icon-canvas"></canvas>
+            <div>
+                <button class="download-btn" onclick="downloadIcon('exam-normal')">下载灰色版</button>
+                <button class="download-btn" onclick="downloadIcon('exam-active')">下载蓝色版</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="icon-generator">
+        <h3>我的图标 (♦)</h3>
+        <div class="icon-preview">
+            <canvas id="profile-normal" width="96" height="96" class="icon-canvas"></canvas>
+            <canvas id="profile-active" width="96" height="96" class="icon-canvas"></canvas>
+            <div>
+                <button class="download-btn" onclick="downloadIcon('profile-normal')">下载灰色版</button>
+                <button class="download-btn" onclick="downloadIcon('profile-active')">下载蓝色版</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const icons = {
+            'home': '⌂',
+            'practice': '⚙', 
+            'exam': '⚐',
+            'profile': '♦'
+        };
+
+        const colors = {
+            normal: '#8E8E93',
+            active: '#007AFF'
+        };
+
+        function drawIcon(canvasId, iconChar, color) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            // 清除画布
+            ctx.clearRect(0, 0, 96, 96);
+            
+            // 设置字体和颜色
+            ctx.font = 'bold 64px Arial, sans-serif';
+            ctx.fillStyle = color;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // 绘制图标
+            ctx.fillText(iconChar, 48, 48);
+        }
+
+        function downloadIcon(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            const link = document.createElement('a');
+            link.download = canvasId + '.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // 初始化所有图标
+        function initIcons() {
+            Object.keys(icons).forEach(name => {
+                drawIcon(name + '-normal', icons[name], colors.normal);
+                drawIcon(name + '-active', icons[name], colors.active);
+            });
+        }
+
+        // 页面加载完成后初始化
+        window.onload = initIcons;
+    </script>
+</body>
+</html>

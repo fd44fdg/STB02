@@ -1,0 +1,202 @@
+{
+	"pages": [
+		{
+			"path": "pages/home/home",
+			"style": {
+				"navigationBarTitleText": "掌上刷题宝",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "首页",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/practice/practice",
+			"style": {
+				"navigationBarTitleText": "刷题练习"
+			}
+		},
+		{
+			"path": "pages/review/review",
+			"style": {
+				"navigationBarTitleText": "知识点复习",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/exam/exam",
+			"style": {
+				"navigationBarTitleText": "模拟考试"
+			}
+		},
+		{
+			"path": "pages/profile/profile",
+			"style": {
+				"navigationBarTitleText": "个人中心"
+			}
+		},
+		{
+			"path": "pages/search/search",
+			"style": {
+				"navigationBarTitleText": "搜索"
+			}
+		},
+		{
+			"path": "pages/question/detail",
+			"style": {
+				"navigationBarTitleText": "题目详情"
+			}
+		},
+		{
+			"path": "pages/article/list",
+			"style": {
+				"navigationBarTitleText": "技术文章"
+			}
+		},
+		{
+			"path": "pages/article/detail",
+			"style": {
+				"navigationBarTitleText": "文章详情"
+			}
+		},
+		{
+			"path": "pages/legal/user-agreement",
+			"style": {
+				"navigationBarTitleText": "用户服务协议"
+			}
+		},
+		{
+			"path": "pages/legal/privacy-policy",
+			"style": {
+				"navigationBarTitleText": "隐私政策"
+			}
+		},
+		{
+			"path": "pages/auth/login",
+			"style": {
+				"navigationBarTitleText": "登录",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/auth/register",
+			"style": {
+				"navigationBarTitleText": "注册",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/profile/edit",
+			"style": {
+				"navigationBarTitleText": "编辑资料"
+			}
+		},
+		{
+			"path": "pages/profile/change-password",
+			"style": {
+				"navigationBarTitleText": "修改密码"
+			}
+		},
+		{
+			"path": "pages/favorites/index",
+			"style": {
+				"navigationBarTitleText": "收藏夹"
+			}
+		},
+		{
+			"path": "pages/wrong-questions/index",
+			"style": {
+				"navigationBarTitleText": "错题本"
+			}
+		},
+		{
+			"path": "pages/study-records/index",
+			"style": {
+				"navigationBarTitleText": "学习记录"
+			}
+		},
+		{
+			"path": "pages/settings/index",
+			"style": {
+				"navigationBarTitleText": "设置"
+			}
+		},
+		{
+			"path": "pages/settings/about",
+			"style": {
+				"navigationBarTitleText": "关于我们"
+			}
+		},
+		{
+			"path": "pages/settings/feedback",
+			"style": {
+				"navigationBarTitleText": "意见反馈"
+			}
+		},
+		{
+			"path": "pages/study/achievements",
+			"style": {
+				"navigationBarTitleText": "我的成就"
+			}
+		},
+		{
+			"path": "pages/demo/tabbar-demo",
+			"style": {
+				"navigationBarTitleText": "增强版导航栏演示"
+			}
+		},
+		{
+			"path": "pages/demo/icon-demo",
+			"style": {
+				"navigationBarTitleText": "现代化图标展示"
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "掌上刷题宝",
+		"navigationBarBackgroundColor": "#4A90E2",
+		"backgroundColor": "#F5F5F5"
+	},
+	"tabBar": {
+		"color": "#8E8E93",
+		"selectedColor": "#007AFF",
+		"borderStyle": "white",
+		"backgroundColor": "#FFFFFF",
+		"fontSize": "11px",
+		"iconWidth": "40px",
+		"iconHeight": "40px",
+		"spacing": "8px",
+		"height": "100px",
+		"list": [
+			{
+				"pagePath": "pages/home/home",
+				"iconPath": "static/icons/home.svg",
+				"selectedIconPath": "static/icons/home-active.svg",
+				"text": "首页"
+			},
+			{
+				"pagePath": "pages/practice/practice",
+				"iconPath": "static/icons/practice.svg",
+				"selectedIconPath": "static/icons/practice-active.svg",
+				"text": "刷题"
+			},
+			{
+				"pagePath": "pages/exam/exam",
+				"iconPath": "static/icons/exam.svg",
+				"selectedIconPath": "static/icons/exam-active.svg",
+				"text": "考试"
+			},
+			{
+				"pagePath": "pages/profile/profile",
+				"iconPath": "static/icons/profile.svg",
+				"selectedIconPath": "static/icons/profile-active.svg",
+				"text": "我的"
+			}
+		]
+	}
+}

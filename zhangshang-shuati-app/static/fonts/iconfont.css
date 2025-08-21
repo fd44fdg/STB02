@@ -1,0 +1,182 @@
+/* 使用 Unicode 字符作为图标的替代方案 */
+.iconfont {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  display: inline-block;
+  text-align: center;
+  line-height: 1;
+}
+
+/* ============ 现代化导航栏专用图标 ============ */
+.icon-tab-home-modern:before {
+  content: "⚡";
+  font-size: 20px;
+}
+
+.icon-tab-practice-modern:before {
+  content: "🧠";
+  font-size: 20px;
+}
+
+.icon-tab-exam-modern:before {
+  content: "🎯";
+  font-size: 20px;
+}
+
+.icon-tab-profile-modern:before {
+  content: "✨";
+  font-size: 20px;
+}
+
+/* ============ 导航栏专用图标 ============ */
+.icon-tab-home:before {
+  content: "🏠";
+  font-size: 20px;
+}
+
+.icon-tab-practice:before {
+  content: "📝";
+  font-size: 20px;
+}
+
+.icon-tab-exam:before {
+  content: "📋";
+  font-size: 20px;
+}
+
+.icon-tab-profile:before {
+  content: "👤";
+  font-size: 20px;
+}
+
+/* ============ 通用图标 ============ */
+.icon-arrow-down:before {
+  content: "▼";
+}
+
+.icon-play:before {
+  content: "▶";
+}
+
+.icon-check:before {
+  content: "✓";
+}
+
+.icon-circle:before {
+  content: "○";
+}
+
+.icon-calendar:before {
+  content: "📅";
+}
+
+.icon-search:before {
+  content: "🔍";
+}
+
+.icon-filter:before {
+  content: "⚙";
+}
+
+.icon-star:before {
+  content: "☆";
+}
+
+.icon-star-fill:before {
+  content: "★";
+}
+
+.icon-book:before {
+  content: "📚";
+}
+
+.icon-user:before {
+  content: "👤";
+}
+
+.icon-setting:before {
+  content: "⚙";
+}
+
+.icon-home:before {
+  content: "🏠";
+}
+
+.icon-practice:before {
+  content: "📝";
+}
+
+.icon-exam:before {
+  content: "📋";
+}
+
+.icon-profile:before {
+  content: "👤";
+}
+
+.icon-close:before {
+  content: "✕";
+}
+
+.icon-refresh:before {
+  content: "↻";
+}
+
+.icon-delete:before {
+  content: "🗑";
+}
+
+.icon-edit:before {
+  content: "✏";
+}
+
+.icon-add:before {
+  content: "+";
+}
+
+.icon-minus:before {
+  content: "-";
+}
+
+.icon-heart:before {
+  content: "♡";
+}
+
+.icon-heart-fill:before {
+  content: "♥";
+}
+
+.icon-time:before {
+  content: "⏰";
+}
+
+.icon-location:before {
+  content: "📍";
+}
+
+.icon-phone:before {
+  content: "📞";
+}
+
+.icon-email:before {
+  content: "✉";
+}
+
+.icon-lock:before {
+  content: "🔒";
+}
+
+.icon-unlock:before {
+  content: "🔓";
+}
+
+.icon-eye:before {
+  content: "👁";
+}
+
+.icon-eye-close:before {
+  content: "🙈";
+}
