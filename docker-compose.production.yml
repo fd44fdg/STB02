@@ -1,0 +1,126 @@
+version: '3.8'
+
+services:
+  # 后端API服务
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: zhangshang-shuati-backend
+    restart: always
+    ports:
+      - "${PORT:-3000}:3000"
+    env_file:
+      - .env.production
+    volumes:
+      - ./backend/public:/app/public
+      - ./backend/logs:/app/logs
+    depends_on:
+      - db
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # 前端管理后台
+  admin-panel:
+    build:
+      context: ./admin-panel
+      dockerfile: Dockerfile
+    container_name: zhangshang-shuati-admin
+    restart: always
+    ports:
+      - "${ADMIN_PORT:-8080}:80"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  # 移动端H5应用
+  mobile-app:
+    build:
+      context: ./zhangshang-shuati-app
+      dockerfile: Dockerfile.h5
+    container_name: zhangshang-shuati-mobile
+    restart: always
+    ports:
+      - "${MOBILE_PORT:-8081}:80"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  # 数据库
+  db:
+    image: mysql:8.0
+    container_name: zhangshang-shuati-mysql
+    restart: always
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: --default-authentication-plugin=mysql_native_password
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # phpMyAdmin 数据库管理工具
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: zhangshang-shuati-phpmyadmin
+    restart: always
+    ports:
+      - "${PMA_PORT:-8082}:80"
+    environment:
+      - PMA_HOST=db
+      - PMA_PORT=3306
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  # Nginx 代理服务器
+  nginx:
+    image: nginx:alpine
+    container_name: zhangshang-shuati-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/ssl:/etc/nginx/ssl
+      - ./nginx/logs:/var/log/nginx
+    depends_on:
+      - backend
+      - admin-panel
+      - mobile-app
+    networks:
+      - app-network
+
+volumes:
+  mysql-data:
+
+networks:
+  app-network:
+    driver: bridge

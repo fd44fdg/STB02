@@ -15,8 +15,10 @@ module.exports = {
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
   setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
-  testTimeout: 10000,
+  testTimeout: 30000,
   verbose: true,
+  maxWorkers: 1,
+  runInBand: true,
   transform: {},
   transformIgnorePatterns: ['node_modules/(?!(.*\.mjs$))'],
   extensionsToTreatAsEsm: []

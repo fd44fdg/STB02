@@ -1,6 +1,6 @@
 const express = require('express');
 const { pool } = require('../config/database');
-const authMiddleware = require('../middleware/auth');
+const { verifyToken: authMiddleware } = require('../middleware/auth');
 const { sendSuccess } = require('../utils/responseHandler');
 const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');

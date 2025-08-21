@@ -5,8 +5,8 @@ import { getToken } from '@/utils/auth'
 
 // 创建axios实例
 const service = axios.create({
-  baseURL: process.env.VUE_APP_BASE_API || 'http://localhost:3000/api',
-  timeout: 5000
+  baseURL: process.env.VUE_APP_BASE_API,
+  timeout: 15000
 })
 
 // 请求拦截器

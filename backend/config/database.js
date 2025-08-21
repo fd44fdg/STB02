@@ -1,45 +1,66 @@
 const mysql = require('mysql2/promise');
 require('dotenv').config();
 
+// 引入统一配置
+const config = require('./index');
+
 // 数据库配置
 const dbConfig = {
-  development: {
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'zhangshang_shuati_dev',
-    port: parseInt(process.env.DB_PORT) || 3306,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-  },
-  test: {
-    host: process.env.TEST_DB_HOST || 'localhost',
-    user: process.env.TEST_DB_USER || 'root',
-    password: process.env.TEST_DB_PASSWORD || '',
-    database: process.env.TEST_DB_NAME || 'zhangshang_shuati_test',
-    port: parseInt(process.env.TEST_DB_PORT) || 3306,
+  host: config.database.host,
+  user: config.database.user,
+  password: config.database.password,
+  database: config.isTest ? config.database.testName : config.database.name,
+  port: config.database.port,
   waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
-  },
-  production: {
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    port: parseInt(process.env.DB_PORT) || 3306,
-    waitForConnections: true,
-    connectionLimit: 20,
-    queueLimit: 0
-  }
+  connectionLimit: config.database.connectionLimit || (config.isProd ? 20 : 10),
+  queueLimit: 0,
+  acquireTimeout: config.database.acquireTimeout || 60000,
+  timeout: config.database.timeout || 60000,
+  reconnect: config.database.reconnect !== false,
+  charset: config.database.charset || 'utf8mb4',
+  timezone: config.database.timezone || '+08:00',
+  supportBigNumbers: true,
+  bigNumberStrings: true,
+  dateStrings: false,
+  multipleStatements: false,
+  // SSL配置
+  ssl: config.database.ssl || false
 };
 
-// 获取当前环境
-const env = process.env.NODE_ENV || 'development';
-
 // 创建连接池
-const pool = mysql.createPool(dbConfig[env]);
+const pool = mysql.createPool(dbConfig);
+
+// 连接池事件监听
+pool.on('connection', (connection) => {
+  console.log(`✅ 新数据库连接建立: ${connection.threadId}`);
+});
+
+pool.on('error', (error) => {
+  console.error('❌ 数据库连接池错误:', error);
+  if (error.code === 'PROTOCOL_CONNECTION_LOST') {
+    console.log('🔄 数据库连接丢失，尝试重新连接...');
+  }
+});
+
+// 连接池监控
+setInterval(() => {
+  if (process.env.NODE_ENV === 'development' && pool.pool && pool.pool._allConnections) {
+    try {
+      const poolInfo = {
+        totalConnections: pool.pool._allConnections.length || 0,
+        freeConnections: pool.pool._freeConnections ? pool.pool._freeConnections.length : 0,
+        acquiringConnections: pool.pool._acquiringConnections ? pool.pool._acquiringConnections.length : 0,
+        connectionLimit: pool.pool.config ? pool.pool.config.connectionLimit : 0
+      };
+      
+      if (poolInfo.freeConnections < 2) {
+        console.warn('⚠️ 数据库连接池可用连接不足:', poolInfo);
+      }
+    } catch (error) {
+      console.warn('⚠️ 监控数据库连接池时出错:', error.message);
+    }
+  }
+}, 30000); // 每30秒检查一次
 
 /**
  * 测试数据库连接

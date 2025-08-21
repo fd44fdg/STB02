@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  # 数据库
+  db:
+    image: mysql:8.0
+    container_name: zhangshang-shuati-mysql-dev
+    restart: always
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-root123}
+      - MYSQL_DATABASE=${DB_NAME:-zhangshang_shuati}
+      - MYSQL_USER=${DB_USER:-root}
+      - MYSQL_PASSWORD=${DB_PASSWORD:-root123}
+    volumes:
+      - mysql-data-dev:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    command: --default-authentication-plugin=mysql_native_password
+    networks:
+      - app-network-dev
+
+  # phpMyAdmin 数据库管理工具
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: zhangshang-shuati-phpmyadmin-dev
+    restart: always
+    ports:
+      - "${PMA_PORT:-8082}:80"
+    environment:
+      - PMA_HOST=db
+      - PMA_PORT=3306
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-root123}
+    depends_on:
+      - db
+    networks:
+      - app-network-dev
+
+volumes:
+  mysql-data-dev:
+
+networks:
+  app-network-dev:
+    driver: bridge

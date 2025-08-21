@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # 后端API服务
   backend:
@@ -45,13 +43,29 @@ services:
     networks:
       - app-network
 
+  # 移动端H5应用
+  mobile-app:
+    build:
+      context: ./zhangshang-shuati-app
+      dockerfile: Dockerfile.h5
+    container_name: zhangshang-shuati-mobile
+    restart: always
+    ports:
+      - "8082:80"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
   # 数据库
   db:
     image: mysql:8.0
     container_name: zhangshang-shuati-mysql
     restart: always
     ports:
-      - "3306:3306"
+      - "3307:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=password
       - MYSQL_DATABASE=zhangshang_shuati
@@ -95,6 +109,7 @@ services:
     depends_on:
       - backend
       - admin-panel
+      - mobile-app
     networks:
       - app-network
 

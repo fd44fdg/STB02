@@ -1,224 +1,92 @@
--- 创建数据库
-CREATE DATABASE IF NOT EXISTS zhangshang_shuati CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- 掌上刷题宝数据库初始化脚本
+-- 包含真实的题目数据和扩展结构
+
 USE zhangshang_shuati;
 
--- 用户表
-CREATE TABLE IF NOT EXISTS users (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  username VARCHAR(50) UNIQUE NOT NULL,
-  email VARCHAR(100) UNIQUE NOT NULL,
-  password VARCHAR(255) NOT NULL,
-  nickname VARCHAR(50),
-  phone VARCHAR(20),
-  avatar VARCHAR(255) DEFAULT '/static/default-avatar.svg',
-  gender ENUM('male', 'female', 'other') DEFAULT 'other',
-  birthday DATE,
-  bio TEXT,
-  learning_goal TEXT,
-  role ENUM('user', 'admin') DEFAULT 'user',
-  status TINYINT DEFAULT 1 COMMENT '0:禁用 1:启用',
-  level INT DEFAULT 1,
-  points INT DEFAULT 0,
-  last_login TIMESTAMP NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+-- 首先确保分类表有数据
+INSERT IGNORE INTO question_categories (id, name, description, sort_order) VALUES
+(1, 'JavaScript基础', 'JavaScript语言基础知识，包括语法、数据类型、函数等', 1),
+(2, 'JavaScript高级', 'JavaScript高级特性，包括闭包、原型、异步编程等', 2),
+(3, 'ES6+新特性', 'ECMAScript 6及以上版本的新特性', 3);
 
--- 用户统计表
-CREATE TABLE IF NOT EXISTS user_stats (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT NOT NULL,
-  correct_rate DECIMAL(5,2) DEFAULT 0.00,
-  continuous_days INT DEFAULT 0,
-  total_questions INT DEFAULT 0,
-  correct_questions INT DEFAULT 0,
-  rank_position INT DEFAULT 0,
-  last_practice_date DATE,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
+-- 插入真实的JavaScript题目数据（包含新字段）
+INSERT INTO questions (title, content, type, difficulty, subject, options, correct_answer, explanation, category_id, tags, knowledge_points, score, status) VALUES
+('JavaScript中的闭包是什么？', 
+'请解释JavaScript中闭包的概念，并给出一个实际应用的例子。', 
+'essay', 'medium', 'JavaScript', 
+NULL,
+'闭包是指有权访问另一个函数作用域中的变量的函数。闭包在JavaScript中非常重要，它允许函数访问并操作函数外部的变量。
 
--- 题目分类表
-CREATE TABLE IF NOT EXISTS question_categories (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(50) NOT NULL,
-  description TEXT,
-  parent_id INT,
-  icon VARCHAR(255),
-  sort_order INT DEFAULT 0,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (parent_id) REFERENCES question_categories(id) ON DELETE SET NULL
-);
+例子：
+```javascript
+function outerFunction(x) {
+  return function(y) {
+    return x + y;
+  };
+}
 
--- 题目表
-CREATE TABLE IF NOT EXISTS questions (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  title VARCHAR(255) NOT NULL,
-  content TEXT NOT NULL,
-  type ENUM('single', 'multiple', 'boolean', 'fill', 'essay') NOT NULL,
-  options JSON,
-  answer TEXT NOT NULL,
-  explanation TEXT,
-  difficulty TINYINT DEFAULT 2 COMMENT '1:简单 2:中等 3:困难 4:专家',
-  category_id INT,
-  tags JSON,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (category_id) REFERENCES question_categories(id) ON DELETE SET NULL
-);
+const addFive = outerFunction(5);
+console.log(addFive(3)); // 输出: 8
+```
 
--- 用户答题记录表
-CREATE TABLE IF NOT EXISTS user_answers (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT NOT NULL,
-  question_id INT NOT NULL,
-  user_answer TEXT NOT NULL,
-  is_correct BOOLEAN NOT NULL,
-  answer_time INT DEFAULT 0 COMMENT '答题用时(秒)',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  FOREIGN KEY (question_id) REFERENCES questions(id) ON DELETE CASCADE
-);
+在这个例子中，内部函数可以访问外部函数的参数x，即使外部函数已经执行完毕。',
+'闭包是JavaScript中的核心概念，它使得函数能够"记住"其词法作用域，即使函数在其词法作用域之外执行。闭包常用于数据封装、模块模式、回调函数等场景。',
+2, '["闭包", "作用域", "函数"]', '["词法作用域", "函数嵌套", "变量访问"]', 10, 1),
 
--- 用户收藏表
-CREATE TABLE IF NOT EXISTS user_favorites (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT NOT NULL,
-  question_id INT NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  FOREIGN KEY (question_id) REFERENCES questions(id) ON DELETE CASCADE,
-  UNIQUE KEY unique_user_question (user_id, question_id)
-);
+('以下哪个方法可以用来遍历数组？', 
+'选择所有可以用来遍历JavaScript数组的方法：', 
+'multiple', 'easy', 'JavaScript', 
+'["for循环", "forEach方法", "map方法", "while循环", "if语句"]',
+'["for循环", "forEach方法", "map方法", "while循环"]',
+'for循环、forEach方法、map方法和while循环都可以用来遍历数组。if语句是条件判断语句，不能用于遍历数组。',
+1, '["数组", "遍历", "循环"]', '["数组方法", "循环结构"]', 5, 1),
 
--- 错题记录表
-CREATE TABLE IF NOT EXISTS user_wrong_questions (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT NOT NULL,
-  question_id INT NOT NULL,
-  wrong_count INT DEFAULT 1,
-  last_wrong_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  is_mastered BOOLEAN DEFAULT FALSE COMMENT '是否已掌握',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  FOREIGN KEY (question_id) REFERENCES questions(id) ON DELETE CASCADE,
-  UNIQUE KEY unique_user_question (user_id, question_id)
-);
+('var、let、const的区别是什么？', 
+'请详细说明JavaScript中var、let、const三种变量声明方式的区别。', 
+'essay', 'medium', 'JavaScript', 
+NULL,
+'1. **作用域**：
+   - var：函数作用域或全局作用域
+   - let/const：块级作用域
 
--- 学习记录表
-CREATE TABLE IF NOT EXISTS user_study_records (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT NOT NULL,
-  study_date DATE NOT NULL,
-  questions_count INT DEFAULT 0,
-  correct_count INT DEFAULT 0,
-  study_time INT DEFAULT 0 COMMENT '学习时长（秒）',
-  categories JSON COMMENT '学习的分类',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  UNIQUE KEY unique_user_date (user_id, study_date)
-);
+2. **变量提升**：
+   - var：存在变量提升，声明会被提升到作用域顶部
+   - let/const：存在暂时性死区，不能在声明前使用
 
--- 用户签到表
-CREATE TABLE IF NOT EXISTS user_checkins (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT NOT NULL,
-  checkin_date DATE NOT NULL,
-  points_earned INT DEFAULT 5 COMMENT '签到获得的积分',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  UNIQUE KEY unique_user_checkin (user_id, checkin_date)
-);
+3. **重复声明**：
+   - var：允许重复声明
+   - let/const：不允许重复声明
 
--- 考试记录表
-CREATE TABLE IF NOT EXISTS user_exams (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT NOT NULL,
-  exam_title VARCHAR(100),
-  score INT NOT NULL,
-  total_questions INT NOT NULL,
-  correct_count INT NOT NULL,
-  duration INT COMMENT '考试用时(秒)',
-  is_passed BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
+4. **重新赋值**：
+   - var/let：可以重新赋值
+   - const：不能重新赋值（但对象内容可以修改）',
+'这是JavaScript ES6引入的重要特性，理解它们的区别对于编写高质量的JavaScript代码非常重要。',
+3, '["变量声明", "ES6", "作用域"]', '["块级作用域", "变量提升", "暂时性死区"]', 8, 1),
 
--- 考试题目关联表
-CREATE TABLE IF NOT EXISTS exam_questions (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  exam_id INT NOT NULL,
-  question_id INT NOT NULL,
-  user_answer TEXT,
-  is_correct BOOLEAN,
-  FOREIGN KEY (exam_id) REFERENCES user_exams(id) ON DELETE CASCADE,
-  FOREIGN KEY (question_id) REFERENCES questions(id) ON DELETE CASCADE
-);
+('以下代码的输出结果是什么？', 
+'```javascript
+console.log(typeof null);
+console.log(typeof undefined);
+console.log(typeof []);
+console.log(typeof {});
+```', 
+'single', 'medium', 'JavaScript', 
+'["object, undefined, array, object", "null, undefined, array, object", "object, undefined, object, object", "null, undefined, object, object"]',
+'object, undefined, object, object',
+'这是JavaScript中的一个经典问题：
+- typeof null 返回 "object"（这是JavaScript的一个历史遗留bug）
+- typeof undefined 返回 "undefined"
+- typeof [] 返回 "object"（数组在JavaScript中是对象类型）
+- typeof {} 返回 "object"',
+1, '["typeof", "数据类型", "操作符"]', '["类型检测", "JavaScript特性"]', 6, 1),
 
--- 文章分类表
-CREATE TABLE IF NOT EXISTS article_categories (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(50) NOT NULL,
-  description TEXT,
-  sort_order INT DEFAULT 0,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
--- 文章表
-CREATE TABLE IF NOT EXISTS articles (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  title VARCHAR(255) NOT NULL,
-  content TEXT NOT NULL,
-  summary TEXT,
-  cover VARCHAR(255),
-  author VARCHAR(50),
-  category_id INT,
-  view_count INT DEFAULT 0,
-  like_count INT DEFAULT 0,
-  comment_count INT DEFAULT 0,
-  status TINYINT DEFAULT 1 COMMENT '0:草稿 1:已发布',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (category_id) REFERENCES article_categories(id) ON DELETE SET NULL
-);
-
--- 文章评论表
-CREATE TABLE IF NOT EXISTS article_comments (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  article_id INT NOT NULL,
-  user_id INT NOT NULL,
-  content TEXT NOT NULL,
-  parent_id INT,
-  like_count INT DEFAULT 0,
-  status TINYINT DEFAULT 1 COMMENT '0:待审核 1:已发布',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  FOREIGN KEY (parent_id) REFERENCES article_comments(id) ON DELETE SET NULL
-);
-
--- 插入默认管理员账号
-INSERT INTO users (username, email, password, nickname, role, status)
-VALUES ('admin', 'admin@example.com', '$2a$10$JQOfG5Tqnf97SqGEYT1TBuFiZ2jNuT6gvxhDft6D6UQjwGTKVqxCS', '管理员', 'admin', 1);
-
--- 插入默认分类
-INSERT INTO question_categories (name, description, sort_order)
-VALUES 
-('JavaScript', 'JavaScript编程语言相关题目', 1),
-('HTML', 'HTML标记语言相关题目', 2),
-('CSS', 'CSS样式表相关题目', 3),
-('React', 'React框架相关题目', 4),
-('Node.js', 'Node.js服务端JavaScript相关题目', 5);
-
--- 插入文章分类
-INSERT INTO article_categories (name, description, sort_order)
-VALUES 
-('技术教程', '各类编程技术教程', 1),
-('面试指南', '求职面试相关内容', 2),
-('学习方法', '提高学习效率的方法', 3); 
+('Promise的三种状态是什么？', 
+'JavaScript中Promise对象有哪三种状态？', 
+'single', 'easy', 'JavaScript', 
+'["pending, resolved, rejected", "pending, fulfilled, rejected", "waiting, success, error", "loading, complete, failed"]',
+'pending, fulfilled, rejected',
+'Promise有三种状态：
+1. pending（待定）：初始状态，既没有被兑现，也没有被拒绝
+2. fulfilled（已兑现）：操作成功完成
+3. rejected（已拒绝）：操作失败',
+2, '["Promise", "异步编程", "状态"]', '["异步处理", "Promise状态管理"]', 5, 1);

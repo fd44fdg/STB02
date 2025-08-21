@@ -264,12 +264,12 @@ export default {
     const resetFormRef = ref(null)
     
     const userInfo = ref({
-      username: 'admin',
-      email: 'admin@example.com',
-      lastLoginTime: new Date(),
-      lastPasswordChangeTime: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+      username: '',
+      email: '',
+      lastLoginTime: null,
+      lastPasswordChangeTime: null,
       status: 1,
-      securityLevel: 2
+      securityLevel: 1
     })
     
     const changePasswordForm = reactive({

@@ -1,8 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const { pool } = require('../config/database');
-const authMiddleware = require('../middleware/auth');
-const { db, helpers } = require('../database/mock-db'); // 引入统一数据库
+const { verifyToken: authMiddleware } = require('../middleware/auth');
 const { sendSuccess } = require('../utils/responseHandler');
 const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
@@ -344,34 +343,49 @@ router.post('/stats/update', authMiddleware, catchAsync(async (req, res) => {
 }));
 
 // GET /api/user/list - 获取用户列表（需要管理员权限）
-router.get('/list', authMiddleware, (req, res) => {
+router.get('/list', authMiddleware, catchAsync(async (req, res) => {
   // 简单的权限检查
   if (req.user.role !== 'admin') {
     return res.status(403).json({ code: 40301, message: '无权访问' });
   }
 
   const { name, page = 1, limit = 20 } = req.query;
-  let filteredUsers = db.users;
+  const offset = (page - 1) * limit;
+  
+  let query = `SELECT id, username, email, nickname, avatar, gender, birthday, bio, 
+               learning_goal AS learningGoal, level, points, role, status, 
+               created_at AS createdAt, updated_at AS updatedAt 
+               FROM users`;
+  let countQuery = 'SELECT COUNT(*) as total FROM users';
+  const params = [];
+  const countParams = [];
 
   if (name) {
-    filteredUsers = filteredUsers.filter(u => u.username.includes(name));
+    query += ' WHERE username LIKE ? OR nickname LIKE ? OR email LIKE ?';
+    countQuery += ' WHERE username LIKE ? OR nickname LIKE ? OR email LIKE ?';
+    const searchTerm = `%${name}%`;
+    params.push(searchTerm, searchTerm, searchTerm);
+    countParams.push(searchTerm, searchTerm, searchTerm);
   }
 
-  const pageData = filteredUsers.slice((page - 1) * limit, page * limit);
-  const total = filteredUsers.length;
+  query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
+  params.push(parseInt(limit), offset);
+
+  const [users] = await pool.execute(query, params);
+  const [[{ total }]] = await pool.execute(countQuery, countParams);
 
   res.json({
     code: 20000,
     message: 'Success',
     data: {
       total,
-      items: pageData.map(({ password, ...user }) => user) // 确保不返回密码
+      items: users
     }
   });
-});
+}));
 
 // POST /api/user/create - 创建新用户（需要管理员权限）
-router.post('/create', authMiddleware, (req, res) => {
+router.post('/create', authMiddleware, catchAsync(async (req, res) => {
   if (req.user.role !== 'admin') {
     return res.status(403).json({ code: 40301, message: '无权访问' });
   }
@@ -381,209 +395,182 @@ router.post('/create', authMiddleware, (req, res) => {
     return res.status(400).json({ code: 40001, message: '用户名和密码是必填项' });
   }
 
-  if (db.users.some(u => u.username === username)) {
+  // 检查用户名是否已存在
+  const [existingUsers] = await pool.execute('SELECT id FROM users WHERE username = ?', [username]);
+  if (existingUsers.length > 0) {
     return res.status(409).json({ code: 40901, message: '用户名已存在' });
   }
 
-  const newUser = {
-    id: helpers.getNextId(db.users),
-    username,
-    password, // 真实应用中应哈希处理
-    email: email || '',
-    role: role || 'user',
-    avatar: '/default-avatar.svg',
-    createdAt: new Date(),
-  };
+  // 检查邮箱是否已存在
+  if (email) {
+    const [existingEmails] = await pool.execute('SELECT id FROM users WHERE email = ?', [email]);
+    if (existingEmails.length > 0) {
+      return res.status(409).json({ code: 40902, message: '邮箱已存在' });
+    }
+  }
 
-  db.users.push(newUser);
-  const { password: _, ...userToReturn } = newUser;
+  // 加密密码
+  const saltRounds = 12;
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+  // 创建新用户
+  const [result] = await pool.execute(
+    `INSERT INTO users (username, password, email, role, avatar, status) 
+     VALUES (?, ?, ?, ?, ?, ?)`,
+    [username, hashedPassword, email || '', role || 'user', '/default-avatar.svg', 1]
+  );
+
+  // 获取创建的用户信息
+  const [newUsers] = await pool.execute(
+    `SELECT id, username, email, nickname, avatar, gender, birthday, bio, 
+     learning_goal AS learningGoal, level, points, role, status, 
+     created_at AS createdAt, updated_at AS updatedAt 
+     FROM users WHERE id = ?`,
+    [result.insertId]
+  );
+
+  // 为新用户创建统计记录
+  await pool.execute(
+    `INSERT INTO user_stats (user_id, correct_rate, continuous_days, total_questions, correct_questions, rank_position) 
+     VALUES (?, 0.00, 0, 0, 0, 0)`,
+    [result.insertId]
+  );
 
   res.status(201).json({
     code: 20000,
     message: '用户创建成功',
-    data: userToReturn
+    data: newUsers[0]
   });
-});
+}));
 
 // PUT /api/user/update/:id - 更新用户信息
-router.put('/update/:id', authMiddleware, (req, res) => {
+router.put('/update/:id', authMiddleware, catchAsync(async (req, res) => {
     const userIdToUpdate = parseInt(req.params.id, 10);
     const { username, email, role } = req.body;
 
     // 管理员或用户自己可以更新信息
-    if (req.user.role !== 'admin' && req.user.id !== userIdToUpdate) {
+    if (req.user.role !== 'admin' && req.user.userId !== userIdToUpdate) {
         return res.status(403).json({ code: 40301, message: '无权访问' });
     }
 
-    const userIndex = db.users.findIndex(u => u.id === userIdToUpdate);
-    if (userIndex === -1) {
+    // 检查用户是否存在
+    const [existingUsers] = await pool.execute('SELECT id FROM users WHERE id = ?', [userIdToUpdate]);
+    if (existingUsers.length === 0) {
         return res.status(404).json({ code: 40401, message: '用户不存在' });
     }
 
-    const updatedUser = {
-        ...db.users[userIndex],
-        username: username || db.users[userIndex].username,
-        email: email || db.users[userIndex].email,
-        role: role || db.users[userIndex].role,
-    };
-    db.users[userIndex] = updatedUser;
-    
-    const { password, ...userToReturn } = updatedUser;
+    // 构建更新字段
+    const updateFields = [];
+    const updateValues = [];
 
-    res.json({ code: 20000, message: '更新成功', data: userToReturn });
-});
+    if (username !== undefined) {
+        // 检查用户名是否已被其他用户使用
+        const [usernameCheck] = await pool.execute('SELECT id FROM users WHERE username = ? AND id != ?', [username, userIdToUpdate]);
+        if (usernameCheck.length > 0) {
+            return res.status(409).json({ code: 40901, message: '用户名已存在' });
+        }
+        updateFields.push('username = ?');
+        updateValues.push(username);
+    }
+
+    if (email !== undefined) {
+        // 检查邮箱是否已被其他用户使用
+        const [emailCheck] = await pool.execute('SELECT id FROM users WHERE email = ? AND id != ?', [email, userIdToUpdate]);
+        if (emailCheck.length > 0) {
+            return res.status(409).json({ code: 40902, message: '邮箱已存在' });
+        }
+        updateFields.push('email = ?');
+        updateValues.push(email);
+    }
+
+    if (role !== undefined) {
+        updateFields.push('role = ?');
+        updateValues.push(role);
+    }
+
+    if (updateFields.length === 0) {
+        return res.status(400).json({ code: 40001, message: '没有要更新的字段' });
+    }
+
+    updateFields.push('updated_at = CURRENT_TIMESTAMP');
+    updateValues.push(userIdToUpdate);
+
+    // 执行更新
+    await pool.execute(
+        `UPDATE users SET ${updateFields.join(', ')} WHERE id = ?`,
+        updateValues
+    );
+
+    // 获取更新后的用户信息
+    const [updatedUsers] = await pool.execute(
+        `SELECT id, username, email, nickname, avatar, gender, birthday, bio, 
+         learning_goal AS learningGoal, level, points, role, status, 
+         created_at AS createdAt, updated_at AS updatedAt 
+         FROM users WHERE id = ?`,
+        [userIdToUpdate]
+    );
+
+    res.json({ code: 20000, message: '更新成功', data: updatedUsers[0] });
+}));
 
 
 // DELETE /api/user/delete/:id - 删除用户
-router.delete('/delete/:id', authMiddleware, (req, res) => {
+router.delete('/delete/:id', authMiddleware, catchAsync(async (req, res) => {
     const userIdToDelete = parseInt(req.params.id, 10);
     
     if (req.user.role !== 'admin') {
         return res.status(403).json({ code: 40301, message: '无权访问' });
     }
 
-    const userIndex = db.users.findIndex(u => u.id === userIdToDelete);
-    if (userIndex === -1) {
+    // 检查用户是否存在
+    const [existingUsers] = await pool.execute('SELECT id, role FROM users WHERE id = ?', [userIdToDelete]);
+    if (existingUsers.length === 0) {
         return res.status(404).json({ code: 40401, message: '用户不存在' });
     }
 
     // 防止管理员删除自己
-    if (db.users[userIndex].id === req.user.id) {
+    if (userIdToDelete === req.user.userId) {
         return res.status(400).json({ code: 40002, message: '不能删除当前登录的管理员账户' });
     }
 
-    db.users.splice(userIndex, 1);
-    res.json({ code: 20000, message: '用户删除成功' });
-});
+    // 使用事务删除用户及相关数据
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();
 
-// =================================================================
-// =================== Admin Panel APIs ============================
-// =================================================================
+        // 删除用户相关的统计数据
+        await connection.execute('DELETE FROM user_stats WHERE user_id = ?', [userIdToDelete]);
+        
+        // 删除用户签到记录
+        await connection.execute('DELETE FROM user_checkins WHERE user_id = ?', [userIdToDelete]);
+        
+        // 删除用户答题记录
+        await connection.execute('DELETE FROM user_answers WHERE user_id = ?', [userIdToDelete]);
+        
+        // 删除用户收藏
+        await connection.execute('DELETE FROM user_favorites WHERE user_id = ?', [userIdToDelete]);
+        
+        // 删除用户错题记录
+        await connection.execute('DELETE FROM user_wrong_questions WHERE user_id = ?', [userIdToDelete]);
+        
+        // 删除用户文章相关记录
+        await connection.execute('DELETE FROM user_article_likes WHERE user_id = ?', [userIdToDelete]);
+        await connection.execute('DELETE FROM user_article_favorites WHERE user_id = ?', [userIdToDelete]);
+        await connection.execute('DELETE FROM article_comments WHERE user_id = ?', [userIdToDelete]);
+        
+        // 最后删除用户
+        await connection.execute('DELETE FROM users WHERE id = ?', [userIdToDelete]);
 
-// Middleware to check for admin role (example)
-// In a real app, this would be more robust
-const isAdmin = (req, res, next) => {
-    // For now, we assume if you can hit this endpoint, you are an admin
-    // This should be replaced with proper role checking from the token
-    next();
-};
-
-// GET /api/users/list - Get user list for admin panel
-router.get('/list', authMiddleware, isAdmin, (req, res) => {
-    const { keyword, status, role, page = 1, limit = 10 } = req.query;
-
-    let filteredUsers = db.users;
-
-    // 1. Filter by keyword
-    if (keyword) {
-        filteredUsers = filteredUsers.filter(u => 
-            u.username.includes(keyword) || 
-            (u.nickname && u.nickname.includes(keyword)) ||
-            u.email.includes(keyword)
-        );
+        await connection.commit();
+        res.json({ code: 20000, message: '用户删除成功' });
+    } catch (error) {
+        await connection.rollback();
+        throw error;
+    } finally {
+        connection.release();
     }
-    
-    // 2. Filter by status
-    if (status !== undefined && status !== null && status !== '') {
-        const numStatus = parseInt(status, 10);
-        filteredUsers = filteredUsers.filter(u => u.status === numStatus);
-    }
+}));
 
-    // 3. Filter by role
-    if (role) {
-        filteredUsers = filteredUsers.filter(u => u.role === role);
-    }
 
-    const total = filteredUsers.length;
-
-    // 4. Paginate
-    const paginatedUsers = filteredUsers.slice((page - 1) * limit, page * limit);
-
-    res.json({
-        code: 20000, // Matching admin panel's success code
-        message: 'User list fetched successfully',
-        data: {
-            total,
-            items: paginatedUsers
-        }
-    });
-});
-
-// POST /api/users - Create a new user from admin panel
-router.post('/', authMiddleware, isAdmin, (req, res) => {
-    const { username, nickname, email, password, role, status } = req.body;
-    
-    if (!username || !email || !password || !role) {
-        return res.status(400).json({ code: 40000, message: 'Missing required fields' });
-    }
-
-    if (helpers.findUserByUsername(username)) {
-        return res.status(400).json({ code: 40000, message: 'Username already exists' });
-    }
-    if (helpers.findUserByEmail(email)) {
-        return res.status(400).json({ code: 40000, message: 'Email already exists' });
-    }
-
-    const newUser = helpers.addUser({
-        username,
-        nickname,
-        email,
-        password, // In a real app, hash this password
-        role,
-        status: status !== undefined ? status : 1, // Default to active
-    });
-
-    res.status(201).json({
-        code: 20000,
-        message: 'User created successfully',
-        data: newUser
-    });
-});
-
-// PUT /api/users/:id - Update a user from admin panel
-router.put('/:id', authMiddleware, isAdmin, (req, res) => {
-    const userId = parseInt(req.params.id, 10);
-    const { nickname, email, role, status } = req.body;
-
-    const user = helpers.findUserById(userId);
-    if (!user) {
-        return res.status(404).json({ code: 40400, message: 'User not found' });
-    }
-    
-    // Check if new email is already taken by another user
-    if (email && email !== user.email && helpers.findUserByEmail(email)) {
-        return res.status(400).json({ code: 40000, message: 'Email is already in use by another account.' });
-    }
-
-    const updatedData = {};
-    if (nickname !== undefined) updatedData.nickname = nickname;
-    if (email !== undefined) updatedData.email = email;
-    if (role !== undefined) updatedData.role = role;
-    if (status !== undefined) updatedData.status = status;
-
-    const updatedUser = helpers.updateUser(userId, updatedData);
-
-    res.json({
-        code: 20000,
-        message: 'User updated successfully',
-        data: updatedUser
-    });
-});
-
-// DELETE /api/users/:id - Delete a user from admin panel
-router.delete('/:id', authMiddleware, isAdmin, (req, res) => {
-    const userId = parseInt(req.params.id, 10);
-
-    const success = helpers.deleteUser(userId);
-
-    if (!success) {
-        return res.status(404).json({ code: 40400, message: 'User not found' });
-    }
-
-    res.json({
-        code: 20000,
-        message: 'User deleted successfully'
-    });
-});
 
 module.exports = router;

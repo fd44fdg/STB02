@@ -5,7 +5,10 @@ const rateLimit = require('express-rate-limit');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 
-const { testConnection, initDatabase } = require('./config/database');
+// 引入统一配置
+const config = require('./config');
+
+const { testConnection, initDatabase } = require('./config/database-adapter');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 const questionRoutes = require('./routes/question');
@@ -15,19 +18,20 @@ const studyRoutes = require('./routes/study');
 const knowledgeRoutes = require('./routes/knowledge');
 const systemRoutes = require('./routes/system');
 const searchRoutes = require('./routes/search');
+const checkinRoutes = require('./routes/checkin');
 
 const { sendSuccess, sendError } = require('./utils/responseHandler');
 const ApiError = require('./utils/ApiError');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = config.ports.backend;
 
 // 安全中间件
 app.use(helmet());
 
 // 跨域配置
 app.use(cors({
-  origin: ['http://localhost:8080', 'http://127.0.0.1:8080'],
+  origin: config.cors.origins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -43,15 +47,18 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
+// 性能监控中间件已禁用
+
+
 // 解析请求体
-app.use(bodyParser.json({ limit: '10mb' }));
-app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
+app.use(bodyParser.json({ limit: config.upload.maxSize }));
+app.use(bodyParser.urlencoded({ extended: true, limit: config.upload.maxSize }));
 
 // 静态文件服务
 app.use('/static', express.static('public'));
 
 // API路由
-const apiPrefix = process.env.API_PREFIX || '/api/v1';
+const apiPrefix = `${config.api.prefix}/${config.api.version}`;
 app.use(`${apiPrefix}`, authRoutes);
 app.use(`${apiPrefix}/users`, userRoutes);
 app.use(`${apiPrefix}/questions`, questionRoutes);
@@ -61,6 +68,7 @@ app.use(`${apiPrefix}/admin/content`, contentRoutes);
 app.use(`${apiPrefix}/knowledge`, knowledgeRoutes);
 app.use(`${apiPrefix}/system`, systemRoutes);
 app.use(`${apiPrefix}/search`, searchRoutes);
+app.use(`${apiPrefix}`, checkinRoutes);
 
 // 健康检查端点
 app.get('/health', (req, res) => {

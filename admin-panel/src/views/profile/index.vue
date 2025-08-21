@@ -139,15 +139,15 @@ export default {
     const showPasswordDialog = ref(false)
     
     const userInfo = reactive({
-      id: 1,
-      username: 'admin',
-      nickname: '管理员',
-      email: 'admin@example.com',
-      phone: '13800138000',
+      id: null,
+      username: '',
+      nickname: '',
+      email: '',
+      phone: '',
       avatar: '/static/default-avatar.svg',
-      role: 'admin',
-      createTime: '2024-01-01 10:00:00',
-      lastLoginTime: '2024-01-15 14:30:00'
+      role: '',
+      createTime: '',
+      lastLoginTime: ''
     })
     
     const passwordForm = reactive({

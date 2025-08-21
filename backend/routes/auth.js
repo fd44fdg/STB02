@@ -3,7 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const axios = require('axios'); // 引入 axios
-const { query, getOne, insert } = require('../config/database');
+const { query, getOne, insert } = require('../config/database-adapter');
 const { verifyToken } = require('../middleware/auth');
 const ApiError = require('../utils/ApiError');
 const catchAsync = require('../utils/catchAsync');
@@ -45,18 +45,11 @@ router.post('/auth/register', catchAsync(async (req, res) => {
   const userData = {
     username,
     email,
-    password: hashedPassword,
-    nickname: nickname || username,
-    role: 'user',
-    status: 1
+    password_hash: hashedPassword,
+    nickname: nickname || username
   };
   
   const result = await insert('users', userData);
-  
-  // 创建用户统计记录
-  await insert('user_stats', {
-    user_id: result.id
-  });
   
   // 生成JWT令牌
   const token = jwt.sign(
@@ -102,20 +95,12 @@ router.post('/auth/login', catchAsync(async (req, res) => {
     throw new ApiError(401, '用户名或密码错误');
   }
   
-  // 检查账号状态
-  if (user.status !== 1) {
-    throw new ApiError(403, '账号已被禁用，请联系管理员');
-  }
-  
   // 验证密码
-  const isMatch = await bcrypt.compare(password, user.password);
+  const isMatch = await bcrypt.compare(password, user.password_hash);
   
   if (!isMatch) {
     throw new ApiError(401, '用户名或密码错误');
   }
-  
-  // 更新最后登录时间
-  await query('UPDATE users SET last_login = NOW() WHERE id = ?', [user.id]);
   
   // 生成JWT令牌
   const token = jwt.sign(
@@ -135,7 +120,7 @@ router.post('/auth/login', catchAsync(async (req, res) => {
         username: user.username,
         email: user.email,
         nickname: user.nickname,
-        avatar: user.avatar,
+        avatar: user.avatar_url,
         role: user.role
       }
     }
@@ -164,7 +149,7 @@ router.post('/auth/change-password', verifyToken, catchAsync(async (req, res) =>
   }
   
   // 验证旧密码
-  const isMatch = await bcrypt.compare(oldPassword, user.password);
+  const isMatch = await bcrypt.compare(oldPassword, user.password_hash);
   
   if (!isMatch) {
     throw new ApiError(400, '旧密码错误');
@@ -180,7 +165,7 @@ router.post('/auth/change-password', verifyToken, catchAsync(async (req, res) =>
   const hashedPassword = await bcrypt.hash(newPassword, salt);
   
   // 更新密码
-  await query('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, userId]);
+  await query('UPDATE users SET password_hash = ? WHERE id = ?', [hashedPassword, userId]);
   
   res.json({
     code: 200,
@@ -222,7 +207,7 @@ router.get('/auth/verify', catchAsync(async (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
     
     // 查询用户
-    const user = await getOne('SELECT id, username, email, nickname, avatar, role FROM users WHERE id = ?', [decoded.id]);
+    const user = await getOne('SELECT id, username, email, nickname, avatar_url, role FROM users WHERE id = ?', [decoded.id]);
     
     if (!user) {
       throw new ApiError(401, '用户不存在');
@@ -266,7 +251,7 @@ router.post('/auth/wechatLogin', catchAsync(async (req, res) => {
   }
 
   // 2. 根据 openid 查询用户
-  let user = await getOne('SELECT id, username, email, nickname, avatar, role, openid FROM users WHERE openid = ?', [openid]);
+  let user = await getOne('SELECT id, username, email, nickname, avatar_url, role, openid FROM users WHERE openid = ?', [openid]);
 
   if (!user) {
     // 3. 如果用户不存在，则自动注册
@@ -277,24 +262,17 @@ router.post('/auth/wechatLogin', catchAsync(async (req, res) => {
     const userData = {
       username: newUsername,
       email: newEmail,
-      password: '', // 微信登录无需密码
+      password_hash: '', // 微信登录无需密码
       nickname: userInfo.nickName || newUsername,
-      avatar: defaultAvatar,
-      role: 'user',
-      status: 1,
+      avatar_url: defaultAvatar,
       openid: openid
     };
 
     const result = await insert('users', userData);
     user = { id: result.id, ...userData };
 
-    // 创建用户统计记录
-    await insert('user_stats', {
-      user_id: result.id
-    });
   } else {
     // 更新最后登录时间
-    await query('UPDATE users SET last_login = NOW() WHERE id = ?', [user.id]);
   }
 
   // 4. 生成JWT令牌
@@ -315,86 +293,7 @@ router.post('/auth/wechatLogin', catchAsync(async (req, res) => {
         username: user.username,
         email: user.email,
         nickname: user.nickname,
-        avatar: user.avatar,
-        role: user.role,
-        openid: user.openid
-      }
-    }
-  });
-}));
-
-/**
- * 微信一键登录
- * @route POST /auth/wechatLogin
- * @access Public
- */
-router.post('/auth/wechatLogin', catchAsync(async (req, res) => {
-  const { code, userInfo } = req.body;
-
-  if (!code) {
-    throw new ApiError(400, '缺少微信登录凭证code');
-  }
-
-  // 1. 调用微信接口获取 openid 和 session_key
-  const wechatApiUrl = `https://api.weixin.qq.com/sns/jscode2session?appid=${WECHAT_APP_ID}&secret=${WECHAT_APP_SECRET}&js_code=${code}&grant_type=authorization_code`;
-  const wechatRes = await axios.get(wechatApiUrl);
-  const { openid, session_key, errcode, errmsg } = wechatRes.data;
-
-  if (errcode) {
-    throw new ApiError(400, `微信登录失败: ${errmsg || '未知错误'}`);
-  }
-
-  // 2. 根据 openid 查询用户
-  let user = await getOne('SELECT id, username, email, nickname, avatar, role, openid FROM users WHERE openid = ?', [openid]);
-
-  if (!user) {
-    // 3. 如果用户不存在，则自动注册
-    const newUsername = `wx_${openid.substring(0, 8)}`; // 简单生成一个用户名
-    const newEmail = `${newUsername}@wechat.com`; // 简单生成一个邮箱
-    const defaultAvatar = userInfo.avatarUrl || '/public/default-avatar.svg';
-
-    const userData = {
-      username: newUsername,
-      email: newEmail,
-      password: '', // 微信登录无需密码
-      nickname: userInfo.nickName || newUsername,
-      avatar: defaultAvatar,
-      role: 'user',
-      status: 1,
-      openid: openid
-    };
-
-    const result = await insert('users', userData);
-    user = { id: result.id, ...userData };
-
-    // 创建用户统计记录
-    await insert('user_stats', {
-      user_id: result.id
-    });
-  } else {
-    // 更新最后登录时间
-    await query('UPDATE users SET last_login = NOW() WHERE id = ?', [user.id]);
-  }
-
-  // 4. 生成JWT令牌
-  const token = jwt.sign(
-    { id: user.id, username: user.username, role: user.role, openid: user.openid },
-    process.env.JWT_SECRET || 'your-secret-key',
-    { expiresIn: '7d' }
-  );
-
-  // 返回用户信息（不含敏感信息）和令牌
-  res.json({
-    code: 200,
-    message: '登录成功',
-    data: {
-      token,
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        nickname: user.nickname,
-        avatar: user.avatar,
+        avatar: user.avatar_url,
         role: user.role,
         openid: user.openid
       }

@@ -16,7 +16,19 @@
     "start:backend": "cd backend && npm start",
     "start:admin": "cd admin-panel && npm run serve",
     "start:mobile": "cd zhangshang-shuati-app && npm run dev:h5",
-    "dev": "concurrently \"npm run start:backend\" \"npm run start:admin\" \"npm run start:mobile\""
+    "dev": "concurrently \"npm run start:backend\" \"npm run start:admin\" \"npm run start:mobile\"",
+    "dev:backend": "cross-env NODE_ENV=development npm run start:backend",
+    "dev:admin": "cross-env NODE_ENV=development npm run start:admin",
+    "dev:mobile": "cross-env NODE_ENV=development npm run start:mobile",
+    "build": "npm run build:backend && npm run build:admin && npm run build:mobile",
+    "build:backend": "cd backend && npm run build",
+    "build:admin": "cd admin-panel && npm run build",
+    "build:mobile": "cd zhangshang-shuati-app && npm run build:h5",
+    "build:miniprogram": "cd zhangshang-shuati-app && npm run build:mp-weixin",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f"
   },
   "keywords": [
     "education",

@@ -1,74 +1,65 @@
-const fs = require('fs');
-const path = require('path');
+const mysql = require('mysql2/promise');
+const { pool } = require('../config/database');
 
-// 测试数据库配置 - 使用内存数据库进行测试
+// 测试数据库配置
 process.env.NODE_ENV = 'test';
-process.env.DB_TYPE = 'memory'; // 使用内存数据库
 process.env.JWT_SECRET = 'test_jwt_secret_key_for_testing_only';
 process.env.PORT = '3001';
 
-// 模拟数据库连接
-const mockDb = {
-  users: new Map(),
-  questions: new Map(),
-  userStats: new Map(),
-  userAnswers: new Map(),
-  userFavorites: new Map(),
-  userWrongQuestions: new Map(),
-  userStudyRecords: new Map()
-};
-
-// 全局模拟数据库
-global.mockDb = mockDb;
-
 // 全局测试设置
 beforeAll(async () => {
-  // 创建测试数据库连接
-  const connection = await mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD
-  });
-
-  // 创建测试数据库
-  await connection.execute(`CREATE DATABASE IF NOT EXISTS ${process.env.DB_NAME}`);
-  await connection.end();
-
-  // 初始化数据库表结构
-  await initDatabase();
-});
+  // 初始化测试数据库连接
+  console.log('🔧 初始化测试环境...');
+  
+  // 测试数据库连接
+  try {
+    const connection = await pool.getConnection();
+    console.log('✅ 测试数据库连接成功');
+    connection.release();
+  } catch (error) {
+    console.error('❌ 测试数据库连接失败:', error.message);
+    throw error;
+  }
+}, 30000);
 
 // 每个测试后清理数据
 afterEach(async () => {
-  const connection = await mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME
-  });
-
   // 清理测试数据（保留表结构）
-  await connection.execute('SET FOREIGN_KEY_CHECKS = 0');
-  await connection.execute('TRUNCATE TABLE user_study_records');
-  await connection.execute('TRUNCATE TABLE user_wrong_questions');
-  await connection.execute('TRUNCATE TABLE user_answers');
-  await connection.execute('TRUNCATE TABLE user_favorites');
-  await connection.execute('TRUNCATE TABLE user_stats');
-  await connection.execute('TRUNCATE TABLE questions');
-  await connection.execute('TRUNCATE TABLE users');
-  await connection.execute('SET FOREIGN_KEY_CHECKS = 1');
-
-  await connection.end();
+  try {
+    const connection = await pool.getConnection();
+    try {
+      await connection.execute('SET FOREIGN_KEY_CHECKS = 0');
+      await connection.execute('TRUNCATE TABLE user_study_records');
+      await connection.execute('TRUNCATE TABLE user_wrong_questions');
+      await connection.execute('TRUNCATE TABLE user_answers');
+      await connection.execute('TRUNCATE TABLE user_favorites');
+      await connection.execute('TRUNCATE TABLE user_stats');
+      await connection.execute('TRUNCATE TABLE user_checkins');
+      await connection.execute('TRUNCATE TABLE questions');
+      await connection.execute('TRUNCATE TABLE users');
+      await connection.execute('SET FOREIGN_KEY_CHECKS = 1');
+    } finally {
+      connection.release();
+    }
+  } catch (error) {
+    console.warn('清理测试数据时出现警告:', error.message);
+  }
 });
 
 // 所有测试完成后清理
 afterAll(async () => {
   console.log('🧹 测试完成，清理资源...');
-  // 清理全局模拟数据库
-  global.mockDb = null;
-});
+  try {
+    if (pool) {
+      await pool.end();
+      console.log('✅ 数据库连接池已关闭');
+    }
+  } catch (error) {
+    console.warn('⚠️ 关闭数据库连接池时出现警告:', error.message);
+  }
+}, 30000);
 
-// 测试工具函数
+// 测试工具函数 - 使用真实数据库
 const createTestUser = async (userData = {}) => {
   const bcrypt = require('bcryptjs');
   
@@ -81,12 +72,19 @@ const createTestUser = async (userData = {}) => {
 
   const user = { ...defaultUser, ...userData };
   const hashedPassword = await bcrypt.hash(user.password, 10);
-  const userId = Date.now(); // 简单的ID生成
-  user.id = userId;
-  user.password = hashedPassword;
   
-  // 存储到内存数据库
-  global.mockDb.users.set(userId, user);
+  // 插入到真实数据库
+  const connection = await pool.getConnection();
+  try {
+    const [result] = await connection.execute(
+      `INSERT INTO users (username, email, password, role, avatar, status) 
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [user.username, user.email, hashedPassword, user.role, '/default-avatar.svg', 1]
+    );
+    user.id = result.insertId;
+   } finally {
+     connection.release();
+   }
   return user;
 };
 
@@ -96,30 +94,47 @@ const createTestQuestion = async (questionData = {}) => {
     content: '这是一个测试题目',
     type: 'single',
     options: ['选项A', '选项B', '选项C', '选项D'],
-    correct_answer: 'A',
+    correct_answer: ['A'],
     explanation: '这是解析',
     difficulty: 'medium',
-    subject: '数学',
+    category_id: 1,
     tags: ['测试']
   };
 
   const question = { ...defaultQuestion, ...questionData };
-  const questionId = Date.now() + Math.random(); // 简单的ID生成
-  question.id = questionId;
   
-  // 存储到内存数据库
-  global.mockDb.questions.set(questionId, question);
+  // 插入到真实数据库
+  const connection = await pool.getConnection();
+  try {
+    const [result] = await connection.execute(
+      `INSERT INTO questions (title, content, type, options, correct_answer, explanation, difficulty, category_id, tags, created_by) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        question.title, 
+        question.content, 
+        question.type, 
+        JSON.stringify(question.options), 
+        JSON.stringify(question.correct_answer), 
+        question.explanation, 
+        question.difficulty, 
+        question.category_id, 
+        JSON.stringify(question.tags),
+        1 // 默认创建者ID
+      ]
+    );
+    question.id = result.insertId;
+  } finally {
+    connection.release();
+  }
   return question;
 };
 
 global.testUtils = {
   createTestUser,
-  createTestQuestion,
-  mockDb: () => global.mockDb
+  createTestQuestion
 };
 
 module.exports = {
   createTestUser,
-  createTestQuestion,
-  mockDb: () => global.mockDb
+  createTestQuestion
 };
