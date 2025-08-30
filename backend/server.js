@@ -20,6 +20,7 @@ const knowledgeRoutes = require('./routes/knowledge');
 const systemRoutes = require('./routes/system');
 const searchRoutes = require('./routes/search');
 const checkinRoutes = require('./routes/checkin');
+const statsRoutes = require('./routes/stats');
 
 const { sendSuccess, sendError } = require('./utils/responseHandler');
 const ApiError = require('./utils/ApiError');
@@ -70,6 +71,7 @@ app.use(`${apiPrefix}/admin/content`, contentRoutes);
 app.use(`${apiPrefix}/knowledge`, knowledgeRoutes);
 app.use(`${apiPrefix}/system`, systemRoutes);
 app.use(`${apiPrefix}/search`, searchRoutes);
+app.use(`${apiPrefix}/stats`, statsRoutes);
 app.use(`${apiPrefix}`, checkinRoutes);
 
 // 健康检查端点

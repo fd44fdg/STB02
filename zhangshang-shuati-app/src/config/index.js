@@ -6,7 +6,7 @@ const config = {
   // 开发环境配置
   development: {
     api: {
-      baseUrl: process.env.VUE_APP_API_BASE_URL || 'http://localhost:3002/api/v1',
+      baseUrl: process.env.VUE_APP_API_BASE_URL || 'http://localhost:3000/api/v1',
       timeout: process.env.VUE_APP_API_TIMEOUT || 10000
     },
     debug: process.env.VUE_APP_DEBUG === 'true',

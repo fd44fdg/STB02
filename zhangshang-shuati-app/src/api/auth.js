@@ -11,6 +11,15 @@ export function login(data) {
 }
 
 /**
+ * 微信一键登录
+ * @param {Object} data 微信登录数据，包含 code 和 userInfo
+ * @returns {Promise}
+ */
+export function wechatLogin(data) {
+  return request.post('/auth/wechatLogin', data);
+}
+
+/**
  * 用户注册
  * @param {Object} data 注册数据
  * @returns {Promise}

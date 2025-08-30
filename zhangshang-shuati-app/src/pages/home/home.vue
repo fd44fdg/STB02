@@ -4,10 +4,10 @@
 		<view class="welcome-section">
 			<view class="welcome-card">
 				<view class="user-info">
-					<image class="avatar" :src="userInfo.avatar || '/static/images/avatar-placeholder.png'" mode="aspectFill"></image>
+					<image class="avatar" :src="(userInfo && userInfo.avatar) || '/static/images/avatar-placeholder.png'" mode="aspectFill"></image>
 					<view class="user-text">
 						<text class="greeting">{{ greeting }}</text>
-						<text class="username">{{ userInfo.nickname || '未登录用户' }}</text>
+						<text class="username">{{ (userInfo && userInfo.nickname) || '未登录用户' }}</text>
 					</view>
 				</view>
 				<view class="streak-info">
@@ -156,6 +156,10 @@
 
 <script>
 	import CheckIn from '@/components/CheckIn.vue';
+	import { getUserStats } from '@/api/auth';
+	import { getStatsSummary } from '@/api/stats';
+	import { mapGetters } from 'vuex';
+	
 	export default {
 		name: "Home",
 		components: {
@@ -163,54 +167,17 @@
 		},
 		data() {
 			return {
-				userInfo: {
-					nickname: "学习者",
-					avatar: ""
-				},
 				userStats: {
-					continuousDays: 7
+					continuousDays: 0
 				},
 				todayStats: {
-					questionsCount: 15,
-					correctRate: 85,
-					studyTime: 45
+					questionsCount: 0,
+					correctRate: 0,
+					studyTime: 0
 				},
 				activeButton: null, // 添加跟踪当前活跃按钮的状态
-				knowledgeProgress: [
-					{
-						id: 1,
-						title: "JavaScript基础",
-						progress: 75,
-						completedCount: 30,
-						totalCount: 40
-					},
-					{
-						id: 2,
-						title: "Vue.js框架",
-						progress: 60,
-						completedCount: 18,
-						totalCount: 30
-					},
-					{
-						id: 3,
-						title: "CSS布局",
-						progress: 40,
-						completedCount: 12,
-						totalCount: 30
-					}
-				],
-				recentMistakes: [
-					{
-						id: 1,
-						title: "JavaScript闭包的概念",
-						type: "单选题"
-					},
-					{
-						id: 2,
-						title: "CSS Flexbox布局",
-						type: "多选题"
-					}
-				],
+				knowledgeProgress: [],
+				recentMistakes: [],
 				recommendations: [
 					{
 						id: 1,
@@ -238,6 +205,7 @@
 			}
 		},
 		computed: {
+			...mapGetters('user', ['userInfo', 'isLoggedIn']),
 			greeting() {
 				const hour = new Date().getHours()
 				if (hour < 6) return "深夜好"
@@ -257,43 +225,155 @@
 		},
 		onLoad() {
 			console.log("Home页面加载完成 - 触发编译")
-			this.loadUserData()
-			this.loadTodayStats()
+			this.loadAllData()
 		},
 		onShow() {
-			// 页面显示时刷新数据
-			this.refreshData()
 			// 页面显示时重置活跃按钮状态
 			this.activeButton = null
 			console.log('页面显示，重置按钮状态')
+			// 只有在用户登录时才刷新数据
+			if (this.isLoggedIn) {
+				this.refreshData()
+			}
 		},
 		onPullDownRefresh() {
 			// 下拉刷新
-			this.refreshData()
+			if (this.isLoggedIn) {
+				this.refreshData()
+			}
 			setTimeout(() => {
 				uni.stopPullDownRefresh()
 			}, 1000)
 		},
 		methods: {
-			// 加载用户数据
-			loadUserData() {
-				// 模拟加载用户数据
-				const userData = uni.getStorageSync('userInfo')
-				if (userData) {
-					this.userInfo = userData
+			// 加载所有数据
+			async loadAllData() {
+				if (!this.isLoggedIn) {
+					console.warn('用户未登录，跳过数据加载');
+					return;
+				}
+				
+				try {
+					await Promise.all([
+						this.loadUserStats(),
+						this.loadTodayStats(),
+						this.loadKnowledgeProgress(),
+						this.loadRecentMistakes()
+					]);
+				} catch (error) {
+					console.error('加载数据失败:', error);
+					uni.showToast({
+						title: '数据加载失败',
+						icon: 'none'
+					});
+				}
+			},
+			
+			// 加载用户统计数据
+			async loadUserStats() {
+				try {
+					const response = await getUserStats();
+					if (response && response.code === 200 && response.data) {
+						this.userStats = {
+							continuousDays: response.data.continuousDays || 0,
+							...response.data
+						};
+					}
+				} catch (error) {
+					console.error('加载用户统计失败:', error);
 				}
 			},
 			
 			// 加载今日统计
-			loadTodayStats() {
-				// 模拟从API加载今日统计数据
-				// 实际项目中这里应该调用API
+			async loadTodayStats() {
+				try {
+					const response = await getStatsSummary();
+					if (response && response.code === 200 && response.data) {
+						this.todayStats = {
+							questionsCount: response.data.todayQuestions || 0,
+							correctRate: response.data.todayCorrectRate || 0,
+							studyTime: response.data.todayStudyTime || 0,
+							...response.data
+						};
+					}
+				} catch (error) {
+					console.error('加载今日统计失败:', error);
+				}
+			},
+			
+			// 加载知识点进度
+			async loadKnowledgeProgress() {
+				try {
+					// 如果有API接口，在这里调用
+					// const response = await getKnowledgeProgress();
+					// if (response && response.code === 200) {
+					//     this.knowledgeProgress = response.data;
+					// }
+					
+					// 临时使用模拟数据
+					this.knowledgeProgress = [
+						{
+							id: 1,
+							title: "JavaScript基础",
+							progress: 75,
+							completedCount: 30,
+							totalCount: 40
+						},
+						{
+							id: 2,
+							title: "Vue.js框架",
+							progress: 60,
+							completedCount: 18,
+							totalCount: 30
+						},
+						{
+							id: 3,
+							title: "CSS布局",
+							progress: 40,
+							completedCount: 12,
+							totalCount: 30
+						}
+					];
+				} catch (error) {
+					console.error('加载知识点进度失败:', error);
+				}
+			},
+			
+			// 加载最近错题
+			async loadRecentMistakes() {
+				try {
+					// 如果有API接口，在这里调用
+					// const response = await getRecentMistakes();
+					// if (response && response.code === 200) {
+					//     this.recentMistakes = response.data;
+					// }
+					
+					// 临时使用模拟数据
+					this.recentMistakes = [
+						{
+							id: 1,
+							title: "JavaScript闭包的概念",
+							type: "单选题"
+						},
+						{
+							id: 2,
+							title: "CSS Flexbox布局",
+							type: "多选题"
+						}
+					];
+				} catch (error) {
+					console.error('加载最近错题失败:', error);
+				}
+			},
+			
+			// 加载用户数据
+			loadUserData() {
+				// 这个方法现在由Vuex管理，不需要手动处理
 			},
 			
 			// 刷新数据
-			refreshData() {
-				this.loadUserData()
-				this.loadTodayStats()
+			async refreshData() {
+				await this.loadAllData();
 			},
 			
 			// 开始练习

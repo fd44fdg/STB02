@@ -26,7 +26,7 @@
 			<view class="wechat-login-tip">
 				<text class="tip-text">点击下方按钮，使用微信一键登录</text>
 			</view>
-			<button class="wechat-login-btn" @click="loginWithWechat" :disabled="isLoading">
+			<button class="wechat-login-btn" @click="handleWechatLogin" :disabled="isLoading">
 				<text class="wechat-icon"></text>
 				<text class="btn-text">{{isLoading ? '登录中...' : '微信一键登录'}}</text>
 			</button>
@@ -44,6 +44,9 @@
 </template>
 
 <script>
+import { wechatLogin } from '@/api/auth.js';
+import { mapActions } from 'vuex';
+
 export default {
 	data() {
 		return {
@@ -51,77 +54,74 @@ export default {
 		}
 	},
 	methods: {
-		// 微信登录
-		async loginWithWechat() {
-			this.isLoading = true
+        ...mapActions('user', ['login']),
+
+		// 统一处理微信登录逻辑
+		async handleWechatLogin() {
+			if (this.isLoading) return;
+			this.isLoading = true;
 			uni.showLoading({
-				title: '微信登录中...'
-			})
+				title: '正在登录...'
+			});
+
 			try {
-				// 获取微信登录 code
-				const [loginError, loginRes] = await uni.login({ provider: 'weixin' })
-				if (loginError || !loginRes.code) {
+				// 1. 获取微信登录凭证 code
+				const loginRes = await uni.login({ provider: 'weixin' });
+				if (!loginRes || !loginRes.code) {
+					throw new Error('获取微信登录凭证失败');
+				}
+				const code = loginRes.code;
+
+				// 2. 获取用户微信头像、昵称等信息
+				const profileRes = await uni.getUserProfile({
+					desc: '用于完善您的会员资料'
+				});
+				if (!profileRes || !profileRes.userInfo) {
+                    // 用户拒绝授权，也视为一种失败
+					throw new Error('用户拒绝授权');
+				}
+
+				// 3. 调用后端API，传递code和用户信息
+				const loginPayload = {
+					code,
+					userInfo: profileRes.userInfo
+				};
+                
+                // 调用我们封装的API函数
+				const response = await wechatLogin(loginPayload);
+
+				// 4. 后端验证成功，返回了token和用户信息
+				if (response && response.code === 200 && response.data.token) {
+                    // 使用Vuex action来处理登录成功后的状态管理和数据持久化
+                    await this.login(response.data);
+
 					uni.showToast({
-						title: '微信登录失败，请重试',
-						icon: 'none'
-					})
-					return
-				}
-				const code = loginRes.code
+						title: '登录成功',
+						icon: 'success'
+					});
 
-				// 获取用户信息
-				const [profileError, profileRes] = await uni.getUserProfile({
-					desc: '用于完善用户资料' // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
-				})
+					// 登录成功后，延迟一小段时间再跳转，给用户查看提示的时间
+					setTimeout(() => {
+						uni.switchTab({
+							url: '/pages/index/index'
+						});
+					}, 1500);
 
-				if (profileError) {
-					uni.showToast({
-						title: '已取消微信登录',
-						icon: 'none'
-					})
-					return
+				} else {
+                    // API返回了错误信息
+					throw new Error(response.message || '登录服务异常');
 				}
 
-				// 将 code 和用户信息发送到后端进行登录/注册
-				// 假设后端接口为 /api/auth/wechatLogin
-				try {
-					const response = await this.$http.post('/api/auth/wechatLogin', {
-						code: code,
-						userInfo: profileRes.userInfo
-					})
-
-					if (response.code === 200) {
-						uni.setStorageSync('user_token', response.data.token)
-						uni.setStorageSync('user_info', response.data.userInfo)
-						uni.showToast({
-							title: '登录成功',
-							icon: 'success'
-						})
-						setTimeout(() => {
-							uni.switchTab({
-								url: '/pages/index/index'
-							})
-						}, 1500)
-					} else {
-						uni.showToast({
-							title: response.message || '登录失败',
-							icon: 'none'
-						})
-					}
-				} catch (apiError) {
-					console.error('登录API调用失败，使用游客模式:', apiError)
-					// API调用失败时，使用游客模式
-					this.useGuestMode(profileRes.userInfo)
-				}
 			} catch (error) {
-				console.error('微信登录失败:', error)
+                // 统一处理所有错误
 				uni.showToast({
-					title: '网络错误或微信登录失败',
+					title: error.message || '登录失败，请稍后重试',
 					icon: 'none'
-				})
+				});
 			} finally {
-				this.isLoading = false
-				uni.hideLoading()
+                // 无论成功失败，都要结束loading状态
+				this.isLoading = false;
+				uni.hideLoading();
 			}
 		},
 
@@ -129,50 +129,21 @@ export default {
 		goBack() {
 			uni.navigateBack({
 				delta: 1
-			})
+			});
 		},
 
 		// 跳转到用户服务协议
 		goToUserAgreement() {
 			uni.navigateTo({
 				url: '/pages/legal/user-agreement'
-			})
+			});
 		},
 
 		// 跳转到隐私政策
 		goToPrivacyPolicy() {
 			uni.navigateTo({
 				url: '/pages/legal/privacy-policy'
-			})
-		},
-		
-		// 游客模式登录
-		useGuestMode(userInfo) {
-			// 生成临时用户信息
-			const guestUser = {
-				id: 'guest_' + Date.now(),
-				nickname: userInfo?.nickName || '游客用户',
-				avatar: userInfo?.avatarUrl || '/static/images/default-avatar.png',
-				isGuest: true
-			}
-			
-			// 生成临时token
-			const guestToken = 'guest_token_' + Date.now()
-			
-			// 保存到本地存储
-			uni.setStorageSync('user_token', guestToken)
-			uni.setStorageSync('user_info', guestUser)
-			
-			uni.showToast({
-				title: '已进入游客模式',
-				icon: 'success'
-			})
-			
-			setTimeout(() => {
-				uni.switchTab({
-					url: '/pages/index/index'
-				})
-			}, 1500)
+			});
 		}
 	}
 }

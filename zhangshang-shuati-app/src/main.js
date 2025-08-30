@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import App from './App'
-import userStore from './store/user'
+import store from './store' // Import the main store
 import { initTabBarEnhancer, autoDetectCurrentPage } from './utils/tabbar-enhancer'
 
 // 全局错误处理
@@ -11,7 +11,8 @@ Vue.config.errorHandler = function(err, vm, info) {
   if (process.env.NODE_ENV === 'development') {
     uni.showModal({
       title: '应用错误',
-      content: `${err.message || err}\n${info || ''}`,
+      content: `${err.message || err}
+${info || ''}`,
       showCancel: false
     });
   } else {
@@ -66,15 +67,16 @@ Vue.config.productionTip = false
 App.mpType = 'app'
 
 // 挂载用户状态到全局
-Vue.prototype.$user = userStore;
+
 
 // 初始化应用
 const app = new Vue({
+  store, // Pass the store to the Vue instance
   ...App
 })
 
 // 初始化用户信息
-userStore.initUserInfo().catch(err => {
+store.dispatch('user/fetchUserInfo').catch(err => {
   console.warn('初始化用户信息失败:', err);
 });
 

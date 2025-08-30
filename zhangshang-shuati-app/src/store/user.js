@@ -1,96 +1,90 @@
-import Vue from 'vue';
-import { getUserInfo, login, logout } from '@/api/auth';
+import { wechatLogin, logout, getUserInfo } from '@/api/auth';
 
-// 使用Vue.observable创建响应式状态（Vue 2兼容）
-const state = Vue.observable({
-  token: uni.getStorageSync('token') || '',
-  userInfo: uni.getStorageSync('userInfo') || null,
-  isLogin: !!uni.getStorageSync('token')
-});
+const state = {
+    token: uni.getStorageSync('token') || '',
+    userInfo: uni.getStorageSync('userInfo') || {
+        id: null,
+        username: '',
+        nickname: '',
+        email: '',
+        avatar: '',
+        role: 'guest'
+    },
+};
 
-// 导出状态和方法
+const mutations = {
+    SET_TOKEN: (state, token) => {
+        state.token = token;
+        uni.setStorageSync('token', token);
+    },
+    SET_USER_INFO: (state, userInfo) => {
+        state.userInfo = userInfo;
+        uni.setStorageSync('userInfo', userInfo);
+    },
+    CLEAR_USER_DATA: (state) => {
+        state.token = '';
+        state.userInfo = null;
+        uni.removeStorageSync('token');
+        uni.removeStorageSync('userInfo');
+    }
+};
+
+const actions = {
+    // 微信登录
+    async login({ commit }, loginData) {
+        // loginData 已经包含了 token 和 user
+        const { token, user } = loginData;
+        if (!token || !user) {
+            return Promise.reject(new Error('登录数据无效'));
+        }
+        commit('SET_TOKEN', token);
+        commit('SET_USER_INFO', user);
+        return Promise.resolve(loginData);
+    },
+
+    // 退出登录
+    async logout({ commit }) {
+        try {
+            // 尝试调用后端登出接口，即使失败也继续前端的登出流程
+            await logout();
+        } catch (error) {
+            console.error("Logout API call failed, but proceeding with client-side logout.", error);
+        }
+        commit('CLEAR_USER_DATA');
+        return Promise.resolve();
+    },
+
+    // 从后端获取最新用户信息并更新
+    async fetchUserInfo({ commit, state }) {
+        if (!state.token) {
+            return Promise.reject(new Error('No token found'));
+        }
+        try {
+            const response = await getUserInfo();
+            if (response && response.code === 200 && response.data) {
+                commit('SET_USER_INFO', response.data);
+                return Promise.resolve(response.data);
+            } else {
+                throw new Error(response.message || '获取用户信息失败');
+            }
+        } catch (error) {
+            // 如果token失效，获取用户信息会失败，此时也应该清除本地数据
+            commit('CLEAR_USER_DATA');
+            return Promise.reject(error);
+        }
+    }
+};
+
+const getters = {
+    isLoggedIn: state => !!state.token,
+    userInfo: state => state.userInfo,
+    token: state => state.token
+};
+
 export default {
-  // 获取状态
-  get state() {
-    return state;
-  },
-  
-  // 获取用户信息
-  getUserInfo() {
-    return state.userInfo;
-  },
-  
-  // 获取登录状态
-  isLoggedIn() {
-    return state.isLogin;
-  },
-  
-  // 获取token
-  getToken() {
-    return state.token;
-  },
-  
-  // 设置用户信息
-  setUserInfo(userInfo) {
-    state.userInfo = userInfo;
-    uni.setStorageSync('userInfo', userInfo);
-  },
-  
-  // 设置token
-  setToken(token) {
-    state.token = token;
-    state.isLogin = !!token;
-    uni.setStorageSync('token', token);
-  },
-  
-  // 清除用户信息
-  clearUserInfo() {
-    state.token = '';
-    state.userInfo = null;
-    state.isLogin = false;
-    uni.removeStorageSync('token');
-    uni.removeStorageSync('userInfo');
-  },
-  
-  // 登录
-  async login(loginData) {
-    try {
-      const res = await login(loginData);
-      const { token, user } = res.data;
-      
-      this.setToken(token);
-      this.setUserInfo(user);
-      
-      return Promise.resolve(res);
-    } catch (error) {
-      return Promise.reject(error);
-    }
-  },
-  
-  // 登出
-  async logout() {
-    try {
-      await logout();
-      this.clearUserInfo();
-      return Promise.resolve({ success: true });
-    } catch (error) {
-      return Promise.reject(error);
-    }
-  },
-  
-  // 初始化用户信息
-  async initUserInfo() {
-    if (this.isLoggedIn() && !this.getUserInfo()) {
-      try {
-        const res = await getUserInfo();
-        this.setUserInfo(res.data);
-        return Promise.resolve(res.data);
-      } catch (error) {
-        // 获取用户信息失败，可能是token过期
-        this.clearUserInfo();
-        return Promise.reject(error);
-      }
-    }
-    return Promise.resolve(this.getUserInfo());
-  }
+    namespaced: true,
+    state,
+    mutations,
+    actions,
+    getters
 }; 

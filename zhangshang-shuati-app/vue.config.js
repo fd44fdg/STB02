@@ -12,14 +12,14 @@ module.exports = {
     sourceMap: false,
     loaderOptions: {
       scss: {
-        prependData: `@import "@/uni.scss";`
+        additionalData: `@use "@/uni.scss" as *;`
       }
     }
   },
   
   // 开发服务器配置
   devServer: {
-    port: 8083,
+    port: 8084,
     host: '0.0.0.0',
     https: false,
     hot: true,
@@ -33,7 +33,7 @@ module.exports = {
     },
     proxy: {
       '/api': {
-        target: 'http://localhost:3002',
+        target: 'http://localhost:3000',
         changeOrigin: true,
         secure: false,
         pathRewrite: {
