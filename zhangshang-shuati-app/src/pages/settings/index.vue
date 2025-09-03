@@ -386,11 +386,11 @@ export default {
 
 <style scoped>
 .dark-mode .settings-container {
-	background-color: #0f1720 !important;
+	background-color: var(--bg-color, #0f1720) !important;
 }
 
 .dark-mode .section {
-	background-color: #0b1320 !important;
+	background-color: var(--card-bg, #0b1320) !important;
 	box-shadow: none !important;
 }
 
@@ -398,21 +398,21 @@ export default {
 .dark-mode .item-text,
 .dark-mode .item-value,
 .dark-mode .picker-title {
-	color: #e6eef8 !important;
+	color: var(--text-primary, #e6eef8) !important;
 }
 
 .dark-mode .section-title,
 .dark-mode .item-arrow {
-	color: #9fb0c9 !important;
+	color: var(--text-secondary, #9fb0c9) !important;
 }
 
 .dark-mode .back-button {
-	background-color: #0b1320 !important;
+	background-color: var(--card-bg, #0b1320) !important;
 }
 
 .settings-container {
 	padding: 20rpx;
-	background-color: #f5f5f5;
+	background-color: var(--bg-color, #f5f5f5);
 	min-height: 100vh;
 }
 
@@ -420,10 +420,10 @@ export default {
 	display: flex;
 	align-items: center;
 	padding: 30rpx;
-	background-color: #fff;
+	background-color: var(--card-bg, #fff);
 	border-radius: 16rpx;
 	margin-bottom: 20rpx;
-	box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+	box-shadow: var(--shadow, 0 2rpx 10rpx rgba(0, 0, 0, 0.05));
 	position: relative;
 }
 
@@ -436,19 +436,19 @@ export default {
 	align-items: center;
 	justify-content: center;
 	border-radius: 50%;
-	background-color: #f5f5f5;
+	background-color: var(--card-bg, #f5f5f5);
 }
 
 .back-icon {
 	font-size: 40rpx;
-	color: #333;
+	color: var(--text-primary, #333);
 	font-weight: bold;
 }
 
 .header-title {
 	font-size: 36rpx;
 	font-weight: bold;
-	color: #333;
+	color: var(--text-primary, #333);
 	flex: 1;
 	text-align: center;
 }
@@ -458,16 +458,16 @@ export default {
 }
 
 .section {
-	background-color: #fff;
+	background-color: var(--card-bg, #fff);
 	border-radius: 16rpx;
 	padding: 20rpx;
 	margin-bottom: 20rpx;
-	box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+	box-shadow: var(--shadow, 0 2rpx 10rpx rgba(0, 0, 0, 0.05));
 }
 
 .section-title {
 	font-size: 28rpx;
-	color: #999;
+	color: var(--text-secondary, #999);
 	margin-bottom: 20rpx;
 	padding-left: 10rpx;
 }
@@ -477,7 +477,7 @@ export default {
 	justify-content: space-between;
 	align-items: center;
 	padding: 20rpx 10rpx;
-	border-bottom: 1px solid #f5f5f5;
+	border-bottom: 1px solid var(--border-color, #f5f5f5);
 }
 
 .setting-item:last-child {
@@ -508,7 +508,7 @@ export default {
 	transform: translate(-50%, -50%);
 	width: 12px;
 	height: 14px;
-	border: 2px solid #4A90E2;
+	border: 2px solid var(--icon-accent, var(--accent, #4A90E2));
 	border-radius: 3px 3px 0 0;
 	background: transparent;
 }
@@ -521,7 +521,7 @@ export default {
 	transform: translate(-50%, -50%);
 		width: 4px;
 		height: 3px;
-		background: var(--icon-accent, #4A90E2);
+		background: var(--icon-accent, var(--accent, #4A90E2));
 	border-radius: 50%;
 }
 
@@ -558,7 +558,7 @@ export default {
 	transform: translate(-50%, -50%);
 	width: 8px;
 	height: 14px;
-	border: 2px solid #4A90E2;
+	border: 2px solid var(--icon-accent, var(--accent, #4A90E2));
 	border-radius: 3px;
 	background: transparent;
 }
@@ -570,8 +570,8 @@ export default {
 	left: 35%;
 	width: 2px;
 	height: 2px;
-	background: var(--icon-accent, #4A90E2);
-	box-shadow: 4px 0 0 var(--icon-accent, #4A90E2), 8px 0 0 var(--icon-accent, #4A90E2), 4px 16px 0 var(--icon-accent, #4A90E2), 8px 16px 0 var(--icon-accent, #4A90E2);
+	background: var(--icon-accent, var(--accent, #4A90E2));
+	box-shadow: 4px 0 0 var(--icon-accent, var(--accent, #4A90E2)), 8px 0 0 var(--icon-accent, var(--accent, #4A90E2)), 4px 16px 0 var(--icon-accent, var(--accent, #4A90E2)), 8px 16px 0 var(--icon-accent, var(--accent, #4A90E2));
 }
 
 .difficulty-icon::before {
@@ -607,7 +607,7 @@ export default {
 	transform: translate(-50%, -50%);
 	width: 14px;
 	height: 16px;
-	border: 2px solid var(--icon-accent, #4A90E2);
+	border: 2px solid var(--icon-accent, var(--accent, #4A90E2));
 	background: transparent;
 }
 
@@ -619,8 +619,8 @@ export default {
 	transform: translateX(-50%);
 	width: 8px;
 	height: 1px;
-	background: var(--icon-accent, #4A90E2);
-	box-shadow: 0 3px 0 var(--icon-accent, #4A90E2), 0 6px 0 var(--icon-accent, #4A90E2);
+	background: var(--icon-accent, var(--accent, #4A90E2));
+	box-shadow: 0 3px 0 var(--icon-accent, var(--accent, #4A90E2)), 0 6px 0 var(--icon-accent, var(--accent, #4A90E2));
 }
 
 .auto-next-icon::before {
@@ -631,7 +631,7 @@ export default {
 	transform: translate(-50%, -50%);
 	width: 0;
 	height: 0;
-	border-left: 8px solid var(--icon-accent, #4A90E2);
+	border-left: 8px solid var(--icon-accent, var(--accent, #4A90E2));
 	border-top: 6px solid transparent;
 	border-bottom: 6px solid transparent;
 }

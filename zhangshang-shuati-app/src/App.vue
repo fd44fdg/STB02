@@ -48,6 +48,16 @@
 	--danger: #FF6B6B;
 	--success: #34C759;
 	--shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+	/* helpers used across components */
+	--muted: #cccccc;
+	--muted-border: #e9ecef;
+	--success-bg: #e6f7e6;
+	--warning-bg: #fff7e6;
+	--danger-bg: #fff1f0;
+	--accent-dark: #357ABD;
+	--warning-dark: #FFA500;
+	--card-bg-2: #f8fbff;
+	--card-bg-3: #e8f4ff;
 }
 
 /* 深色主题覆盖 */
@@ -64,6 +74,14 @@ body.dark-mode, .dark-mode {
 	--danger: #FF6B6B;
 	--success: #34C759;
 	--shadow: none;
+	/* dark-mode variants for helpers */
+	--muted: #5b6b7a;
+	--muted-border: #0b1320;
+	--success-bg: rgba(36, 78, 45, 0.12);
+	--warning-bg: rgba(255, 216, 107, 0.08);
+	--danger-bg: rgba(255, 107, 107, 0.06);
+	--card-bg-2: #071428;
+	--card-bg-3: #08182b;
 }
 
 /* 应用变量到常用元素 */
