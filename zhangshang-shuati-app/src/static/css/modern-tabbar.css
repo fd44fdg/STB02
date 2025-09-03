@@ -117,13 +117,14 @@
 
 /* 全平台通用样式 */
 page {
-  --tabbar-text-color: #8E8E93;
-  --tabbar-active-color: #007AFF;
-  --tabbar-bg-color: #FAFAFA;
-  --tabbar-border-color: rgba(0, 0, 0, 0.05);
-  --tabbar-box-shadow: 0 -1px 20px rgba(0, 0, 0, 0.08);
+  /* map tabbar defaults to semantic tokens with safe fallbacks */
+  --tabbar-text-color: var(--text-secondary, #8E8E93);
+  --tabbar-active-color: var(--accent-active, #007AFF);
+  --tabbar-bg-color: var(--card-bg, #FAFAFA);
+  --tabbar-border-color: var(--muted-border, rgba(0, 0, 0, 0.05));
+  --tabbar-box-shadow: var(--tabbar-box-shadow, 0 -1px 20px rgba(0, 0, 0, 0.08));
   --tabbar-hover-bg: rgba(0, 122, 255, 0.05);
-  --tabbar-active-bg: linear-gradient(135deg, rgba(0, 122, 255, 0.1), rgba(0, 122, 255, 0.05));
-  --tabbar-indicator-bg: linear-gradient(90deg, var(--accent-active, #007AFF), #5AC8FA);
-  --tabbar-indicator-shadow: 0 0 8px rgba(0, 122, 255, 0.5);
+  --tabbar-active-bg: var(--tabbar-active-bg, linear-gradient(135deg, rgba(0, 122, 255, 0.1), rgba(0, 122, 255, 0.05)));
+  --tabbar-indicator-bg: var(--tabbar-indicator-bg, linear-gradient(90deg, var(--accent-active, #007AFF), #5AC8FA));
+  --tabbar-indicator-shadow: var(--tabbar-indicator-shadow, 0 0 8px rgba(0, 122, 255, 0.5));
 }
