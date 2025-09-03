@@ -1,0 +1,210 @@
+# Production Docker Compose Configuration
+version: '3.8'
+
+services:
+  # Backend API Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: production
+    container_name: shuati-backend-prod
+    restart: unless-stopped
+    
+    # Environment configuration
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+    
+    # Environment file (create from .env.example)
+    env_file:
+      - ./backend/.env.production
+    
+    # Port mapping
+    ports:
+      - "3000:3000"
+    
+    # Volume mounts
+    volumes:
+      - ./backend/logs:/usr/src/app/logs
+      - ./backend/public/uploads:/usr/src/app/public/uploads
+      - /etc/localtime:/etc/localtime:ro
+    
+    # Dependencies
+    depends_on:
+      mysql:
+        condition: service_healthy
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '1.0'
+        reservations:
+          memory: 256M
+          cpus: '0.5'
+    
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    # Networks
+    networks:
+      - shuati-network
+
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: shuati-mysql-prod
+    restart: unless-stopped
+    
+    # Environment configuration
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    
+    # Port mapping (only expose if needed for external access)
+    # ports:
+    #   - "3306:3306"
+    
+    # Volume mounts
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - /etc/localtime:/etc/localtime:ro
+    
+    # MySQL configuration
+    command: 
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --innodb-buffer-pool-size=256M
+      - --max-connections=200
+      - --query-cache-type=1
+      - --query-cache-size=32M
+      - --slow-query-log=1
+      - --slow-query-log-file=/var/log/mysql/slow.log
+      - --long-query-time=2
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    
+    # Networks
+    networks:
+      - shuati-network
+
+  # Redis Cache (Optional)
+  redis:
+    image: redis:7-alpine
+    container_name: shuati-redis-prod
+    restart: unless-stopped
+    
+    # Configuration
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    
+    # Volume mounts
+    volumes:
+      - redis_data:/data
+      - /etc/localtime:/etc/localtime:ro
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 3s
+      retries: 5
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+        reservations:
+          memory: 128M
+          cpus: '0.25'
+    
+    # Networks
+    networks:
+      - shuati-network
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: shuati-nginx-prod
+    restart: unless-stopped
+    
+    # Port mapping
+    ports:
+      - "80:80"
+      - "443:443"
+    
+    # Volume mounts
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./backend/public:/var/www/static:ro
+      - /etc/localtime:/etc/localtime:ro
+    
+    # Dependencies
+    depends_on:
+      backend:
+        condition: service_healthy
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    
+    # Networks
+    networks:
+      - shuati-network
+
+# Named volumes for data persistence
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
+
+# Custom network
+networks:
+  shuati-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

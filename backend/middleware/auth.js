@@ -24,11 +24,29 @@ const verifyToken = (req, res, next) => {
       return next(new ApiError(401, '无效的认证令牌格式'));
     }
     
-    // 验证token
-    const decoded = jwt.verify(token, config.jwt.secret);
-    
-    // 将用户信息添加到请求对象
-    req.user = decoded;
+    // 验证token（优先严格校验 iss/aud），兼容旧令牌：若仅因 iss/aud 失败则降级校验一次
+    let decoded;
+    try {
+      decoded = jwt.verify(token, config.jwt.secret, {
+        algorithms: [config.jwt.algorithm || 'HS256'],
+        issuer: config.jwt.issuer,
+        audience: config.jwt.audience,
+      });
+    } catch (e) {
+      if (e && (e.name === 'JsonWebTokenError') && /issuer|audience/i.test(e.message)) {
+        // 兼容旧令牌（无 iss/aud），打印警告，后续可移除此分支
+        decoded = jwt.verify(token, config.jwt.secret);
+      } else {
+        throw e;
+      }
+    }
+
+    // 将用户信息添加到请求对象（统一使用 id，并兼容 userId）
+    req.user = decoded || {};
+    if (req.user && typeof req.user.id !== 'undefined') {
+      // 向后兼容：部分旧代码读取 userId
+      req.user.userId = req.user.id;
+    }
 
     next();
   } catch (error) {

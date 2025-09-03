@@ -395,160 +395,36 @@
 					// 模拟API调用
 					await this.simulateApiCall()
 					
-					// 模拟文章数据
+					// 文章数据为空，等待从API加载
 					this.article = {
 						id: this.articleId,
-						title: 'Vue 3 Composition API 深度解析与实战应用',
-						summary: '本文将深入探讨Vue 3中Composition API的核心概念、使用方法以及在实际项目中的应用场景，帮助开发者更好地理解和掌握这一重要特性。',
-						author: '张三',
+						title: '',
+						summary: '',
+						author: '',
 						authorAvatar: null,
-						category: '前端开发',
-						type: 'tutorial',
-						difficulty: 'intermediate',
-						publishTime: '2024-01-15',
-						readTime: 8,
-						viewCount: 1250,
-						likeCount: 89,
-						commentCount: 23,
-						collectCount: 45,
-						isHot: true,
+						category: '',
+						type: '',
+						difficulty: '',
+						publishTime: '',
+						readTime: 0,
+						viewCount: 0,
+						likeCount: 0,
+						commentCount: 0,
+						collectCount: 0,
+						isHot: false,
 						isNew: false,
 						isLiked: false,
 						isCollected: false,
 						isFollowed: false,
 						coverImage: null,
-						// 富文本内容
-						content: [
-							{
-								name: 'h2',
-								children: [{
-									type: 'text',
-									text: '什么是 Composition API？'
-								}]
-							},
-							{
-								name: 'p',
-								children: [{
-									type: 'text',
-									text: 'Composition API 是 Vue 3 中引入的一套新的 API，它提供了一种更灵活的方式来组织和复用组件逻辑。与传统的 Options API 相比，Composition API 具有更好的类型推导能力和更强的逻辑复用性。'
-								}]
-							},
-							{
-								name: 'h3',
-								children: [{
-									type: 'text',
-									text: '核心概念'
-								}]
-							},
-							{
-								name: 'ul',
-								children: [
-									{
-										name: 'li',
-										children: [{
-											type: 'text',
-											text: 'setup() 函数：组件的入口点'
-										}]
-									},
-									{
-										name: 'li',
-										children: [{
-											type: 'text',
-											text: 'ref() 和 reactive()：响应式数据'
-										}]
-									},
-									{
-										name: 'li',
-										children: [{
-											type: 'text',
-											text: 'computed() 和 watch()：计算属性和侦听器'
-										}]
-									},
-									{
-										name: 'li',
-										children: [{
-											type: 'text',
-											text: '生命周期钩子：onMounted、onUpdated 等'
-										}]
-									}
-								]
-							},
-							{
-								name: 'h2',
-								children: [{
-									type: 'text',
-									text: '实际应用场景'
-								}]
-							},
-							{
-								name: 'p',
-								children: [{
-									type: 'text',
-									text: 'Composition API 特别适用于以下场景：'
-								}]
-							},
-							{
-								name: 'ol',
-								children: [
-									{
-										name: 'li',
-										children: [{
-											type: 'text',
-											text: '复杂组件的逻辑组织'
-										}]
-									},
-									{
-										name: 'li',
-										children: [{
-											type: 'text',
-											text: '跨组件的逻辑复用'
-										}]
-									},
-									{
-										name: 'li',
-										children: [{
-											type: 'text',
-											text: 'TypeScript 项目中的类型推导'
-										}]
-									}
-								]
-							},
-							{
-								name: 'p',
-								children: [{
-									type: 'text',
-									text: '通过合理使用 Composition API，我们可以编写出更加清晰、可维护的 Vue 应用程序。'
-								}]
-							}
-						],
-						// 代码示例
-						codeExamples: [
-							{
-								title: '基础 setup 函数示例',
-								language: 'javascript',
-								code: `import { ref, computed, onMounted } from 'vue'\n\nexport default {\n  setup() {\n    const count = ref(0)\n    const doubleCount = computed(() => count.value * 2)\n    \n    const increment = () => {\n      count.value++\n    }\n    \n    onMounted(() => {\n      console.log('组件已挂载')\n    })\n    \n    return {\n      count,\n      doubleCount,\n      increment\n    }\n  }\n}`,
-								description: '这个示例展示了如何在 setup 函数中使用 ref、computed 和生命周期钩子。'
-							},
-							{
-								title: '自定义 Hook 示例',
-								language: 'javascript',
-								code: `import { ref, onMounted, onUnmounted } from 'vue'\n\nexport function useCounter(initialValue = 0) {\n  const count = ref(initialValue)\n  \n  const increment = () => count.value++\n  const decrement = () => count.value--\n  const reset = () => count.value = initialValue\n  \n  return {\n    count,\n    increment,\n    decrement,\n    reset\n  }\n}`,
-								description: '通过自定义 Hook 可以实现逻辑的复用，这是 Composition API 的一大优势。'
-							}
-						],
-						// 相关链接
-						relatedLinks: [
-							{
-								title: 'Vue 3 官方文档 - Composition API',
-								url: 'https://v3.vuejs.org/guide/composition-api-introduction.html'
-							},
-							{
-								title: 'Vue 3 迁移指南',
-								url: 'https://v3.vuejs.org/guide/migration/introduction.html'
-							}
-						],
-						// 标签
-						tags: ['Vue3', 'Composition API', '前端开发', 'JavaScript', '响应式']
+						// 富文本内容（从API加载）
+						content: [],
+						// 代码示例（从API加载）
+						codeExamples: [],
+						// 相关链接（从API加载）
+						relatedLinks: [],
+						// 标签（从API加载）
+						tags: []
 					}
 				} catch (error) {
 					console.error('加载文章失败:', error)

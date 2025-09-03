@@ -150,9 +150,20 @@ export default {
   methods: {
 	// 返回上一页
 	goBack() {
-		uni.navigateBack({
-			delta: 1
-		})
+		// 获取当前页面栈
+		const pages = getCurrentPages();
+
+		// 如果页面栈只有一个页面，跳转到首页
+		if (pages.length <= 1) {
+			uni.switchTab({
+				url: '/pages/home/home'
+			});
+		} else {
+			// 正常返回上一页
+			uni.navigateBack({
+				delta: 1
+			});
+		}
 	},
 	
     async loadFavorites(isRefresh = false) {
@@ -409,6 +420,7 @@ export default {
 .favorites-container {
   background-color: #f5f7fa;
   min-height: 100vh;
+  padding: 30rpx;
 }
 
 /* 页面头部样式 */
@@ -455,6 +467,8 @@ export default {
   display: flex;
   justify-content: space-between;
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
   
   .filter-item {
     flex: 1;

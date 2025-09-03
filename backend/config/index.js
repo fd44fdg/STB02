@@ -1,24 +1,55 @@
 const path = require('path');
+const dotenv = require('dotenv');
+// Load environment variables from backend/.env by default
+try {
+  dotenv.config({ path: path.join(__dirname, '../.env') });
+} catch (e) {
+  // ignore
+}
+
+// Production environment validation
+if (process.env.NODE_ENV === 'production') {
+  const requiredEnvVars = ['JWT_SECRET', 'DB_PASSWORD', 'DB_HOST', 'DB_NAME'];
+  const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+  
+  if (missingVars.length > 0) {
+    throw new Error(`Missing required environment variables in production: ${missingVars.join(', ')}`);
+  }
+  
+  if (process.env.JWT_SECRET.length < 32) {
+    throw new Error('JWT_SECRET must be at least 32 characters long in production');
+  }
+}
 
 const useSqlite = process.env.USE_SQLITE === 'true';
 
 const dbConfig = {
   sqlite: {
     dialect: 'sqlite',
-    storage: path.join(__dirname, '../database/local.db')
+    storage: path.join(__dirname, '../database/local.db'),
+    client: 'sqlite'
   },
   mysql: {
     host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || 3306,
+    port: parseInt(process.env.DB_PORT) || 3306,
     name: process.env.DB_NAME || 'shuati_db',
     user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASS || '',
+    password: process.env.DB_PASSWORD || (() => {
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error('DB_PASSWORD must be set in production');
+      }
+      return '';
+    })(),
     dialect: 'mysql',
     pool: {
-      max: 20,
-      min: 5,
-      acquire: 30000,
-      idle: 10000
+      max: parseInt(process.env.DB_POOL_MAX) || (process.env.NODE_ENV === 'production' ? 50 : 20),
+      min: parseInt(process.env.DB_POOL_MIN) || (process.env.NODE_ENV === 'production' ? 10 : 5),
+      acquire: parseInt(process.env.DB_POOL_ACQUIRE_TIMEOUT) || 60000,
+      idle: parseInt(process.env.DB_POOL_IDLE_TIMEOUT) || 30000,
+      // Production-specific settings
+      evict: 60000,
+      handleDisconnects: true,
+      acquireTimeoutMillis: 60000
     }
   }
 };
@@ -33,11 +64,18 @@ module.exports = {
   // 数据库配置
   database: useSqlite ? dbConfig.sqlite : dbConfig.mysql,
 
-  // CORS配置
+  // CORS配置 - Production-safe
   cors: {
     origins: process.env.CORS_ORIGINS ?
-      process.env.CORS_ORIGINS.split(',') :
-      ['http://localhost:8080', 'http://localhost:3000', 'http://localhost:8081', 'http://localhost:8083']
+      process.env.CORS_ORIGINS.split(',').map(origin => origin.trim()) :
+      (process.env.NODE_ENV === 'production' ?
+        [] : // No default origins in production - must be explicitly set
+        ['http://localhost:8080', 'http://localhost:3000', 'http://localhost:8081', 'http://localhost:8083', 'http://localhost:8084', 'http://localhost:8085', 'http://localhost:8086']
+      ),
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    maxAge: 86400 // 24 hours
   },
 
   // API配置
@@ -46,7 +84,7 @@ module.exports = {
     version: 'v1'
   },
 
-  // JWT配置
+  // JWT配置 - Production-hardened
   jwt: {
     secret: process.env.JWT_SECRET || (() => {
       if (process.env.NODE_ENV === 'production') {
@@ -55,14 +93,32 @@ module.exports = {
       console.warn('⚠️  Using default JWT secret in development. Set JWT_SECRET in production!');
       return 'dev-only-secret-key-not-for-production-use';
     })(),
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d'
+    expiresIn: process.env.JWT_EXPIRES_IN || (process.env.NODE_ENV === 'production' ? '24h' : '7d'),
+    algorithm: 'HS256',
+    issuer: 'shuati-app',
+    audience: 'shuati-users'
   },
 
-  // 文件上传配置
+  // 文件上传配置 - Production-secure
   upload: {
-    maxSize: '10mb',
-    allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'],
-    uploadDir: path.join(__dirname, '../public/uploads')
+    maxSize: process.env.UPLOAD_MAX_SIZE || (process.env.NODE_ENV === 'production' ? '5mb' : '10mb'),
+    allowedTypes: process.env.UPLOAD_ALLOWED_TYPES ? 
+      process.env.UPLOAD_ALLOWED_TYPES.split(',').map(type => type.trim()) :
+      ['image/jpeg', 'image/png', 'image/webp'],
+    uploadDir: path.join(__dirname, '../public/uploads'),
+    // Additional security settings
+    preserveExtension: false,
+    generateUniqueFilename: true,
+    scanForMalware: process.env.NODE_ENV === 'production'
+  },
+
+  // Rate limiting configuration
+  rateLimit: {
+    windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
+    maxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 
+      (process.env.NODE_ENV === 'production' ? 50 : 100),
+    skipSuccessfulRequests: false,
+    skipFailedRequests: false
   },
 
   // 微信小程序配置

@@ -160,44 +160,8 @@ import BackToTop from '@/components/BackToTop/index.vue'
 					'响应式设计',
 					'Ajax请求'
 				],
-				// 模拟搜索数据
-				mockSearchData: [
-					{
-						id: 1,
-						type: 'knowledge',
-						title: 'JavaScript闭包详解',
-						description: '深入理解JavaScript闭包的概念、原理和应用场景',
-						category: 'Javascript',
-						difficulty: 3,
-						questionCount: 25
-					},
-					{
-						id: 2,
-						type: 'question',
-						title: 'CSS Flexbox布局练习题',
-						description: '通过实际案例掌握Flexbox布局的各种属性和用法',
-						category: 'CSS',
-						difficulty: 2,
-						questionCount: 15
-					},
-					{
-						id: 3,
-						type: 'article',
-						title: '前端性能优化最佳实践',
-						description: '从代码优化到资源加载，全面提升前端应用性能',
-						category: 'web前端',
-						readTime: 8
-					},
-					{
-						id: 4,
-						type: 'knowledge',
-						title: 'React Hooks使用指南',
-						description: '学习useState、useEffect等常用Hooks的使用方法',
-						category: 'React',
-						difficulty: 3,
-						questionCount: 30
-					}
-				]
+				// 搜索数据（从API获取）
+				mockSearchData: []
 			}
 		},
 		computed: {

@@ -43,17 +43,31 @@ class Request {
             uni.hideLoading()
           }
 
-          // 处理HTTP状态码
-          if (res.statusCode === 200) {
-            // 处理业务状态码 - 支持多种响应格式
-            const data = res.data
-            if (data.success === true || data.code === 200 || data.status === 'success' || (data.code === undefined && data.success === undefined)) {
-              resolve(data)
-            } else {
-              // 业务错误
-              this.handleBusinessError(data, reject)
-            }
-          } else if (res.statusCode === 401) {
+          // 标准化响应结构
+          const status = res.statusCode || 0
+          const data = res.data
+          const normalized = (data && typeof data === 'object')
+            ? (data.success === true
+                ? { success: true, code: data.code || 200, data: data.data, message: data.message || '' }
+                : (data.data !== undefined && (data.code === 200 || status === 200))
+                  ? { success: true, code: 200, data: data.data, message: data.message || '' }
+                  : { success: false, code: data.code || status, data: data.data, message: data.message || '请求失败' }
+              )
+            : { success: false, code: status, data: null, message: '网络错误或无响应' }
+
+          if (normalized.success) {
+            resolve(normalized)
+          } else if (status === 401 || normalized.code === 401) {
+            // 未授权，清除登录信息并跳转登录页
+            this.handleUnauthorized()
+            reject(new Error('登录已过期，请重新登录'))
+          } else if (status && status !== 200) {
+            // HTTP错误
+            this.handleHttpError(status, reject)
+          } else {
+            // 业务错误
+            this.handleBusinessError(normalized, reject)
+          }
             // 未授权，清除登录信息并跳转登录页
             this.handleUnauthorized()
             reject(new Error('登录已过期，请重新登录'))

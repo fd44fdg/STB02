@@ -180,7 +180,7 @@ export default {
   },
   
   onLoad() {
-    this.loadWrongQuestions();
+    this.checkLoginAndLoad();
   },
   
   onPullDownRefresh() {
@@ -194,6 +194,38 @@ export default {
   },
   
   methods: {
+    // 返回上一页
+    goBack() {
+      // 获取当前页面栈
+      const pages = getCurrentPages();
+
+      // 如果页面栈只有一个页面，跳转到首页
+      if (pages.length <= 1) {
+        uni.switchTab({
+          url: '/pages/home/home'
+        });
+      } else {
+        // 正常返回上一页
+        uni.navigateBack({
+          delta: 1
+        });
+      }
+    },
+
+    // 检查登录状态并加载数据
+    checkLoginAndLoad() {
+      const token = uni.getStorageSync('zs_token');
+      if (!token) {
+        // 用户未登录，显示提示信息
+        console.log('用户未登录，显示默认数据');
+        this.wrongQuestionsList = this.getDefaultWrongQuestions();
+        this.hasMore = false;
+        return;
+      }
+      // 用户已登录，正常加载数据
+      this.loadWrongQuestions();
+    },
+
     async loadWrongQuestions(isRefresh = false) {
       if (isRefresh) {
         this.page = 1;
@@ -246,7 +278,23 @@ export default {
           }
         }
       } catch (error) {
-        console.error('获取错题列表失败，使用默认数据:', error);
+        console.error('获取错题列表失败:', error);
+
+        // 检查是否是认证错误
+        if (error.message && error.message.includes('登录')) {
+          // 认证失败，提示用户登录
+          uni.showToast({
+            title: '请先登录',
+            icon: 'none',
+            duration: 2000
+          });
+          // 可以选择跳转到登录页
+          // uni.navigateTo({ url: '/pages/auth/login' });
+        } else {
+          // 其他网络错误，使用默认数据
+          console.log('网络错误，使用默认数据');
+        }
+
         // 网络错误时使用默认数据（仅在首次加载时）
         if (isRefresh || this.page === 1) {
           this.wrongQuestionsList = this.getDefaultWrongQuestions();
@@ -399,37 +447,9 @@ export default {
       return map[difficulty] || '未知';
     },
     
-    // 获取默认错题数据
+    // 获取默认错题数据（空状态）
     getDefaultWrongQuestions() {
-      return [
-        {
-          id: 1,
-          content: 'JavaScript中var、let、const的区别是什么？',
-          difficulty: 'medium',
-          wrong_count: 3,
-          last_wrong_time: new Date().toISOString(),
-          is_mastered: false,
-          category: 'JavaScript基础'
-        },
-        {
-          id: 2,
-          content: 'CSS中flex布局的主轴和交叉轴如何理解？',
-          difficulty: 'medium',
-          wrong_count: 2,
-          last_wrong_time: new Date(Date.now() - 86400000).toISOString(),
-          is_mastered: false,
-          category: 'CSS基础'
-        },
-        {
-          id: 3,
-          content: 'Vue组件间通信有哪些方式？',
-          difficulty: 'hard',
-          wrong_count: 1,
-          last_wrong_time: new Date(Date.now() - 172800000).toISOString(),
-          is_mastered: true,
-          category: 'Vue.js'
-        }
-      ];
+      return [];
     },
     
     formatTime(timeStr) {
@@ -468,6 +488,45 @@ export default {
 .wrong-questions-container {
   background-color: #f5f7fa;
   min-height: 100vh;
+  padding: 30rpx;
+}
+
+/* 页面头部样式 */
+.page-header {
+	display: flex;
+	align-items: center;
+	padding: 20rpx 30rpx;
+	background-color: #fff;
+	border-radius: 16rpx;
+	margin-bottom: 20rpx;
+	box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+	position: relative;
+}
+
+.back-button {
+	position: absolute;
+	left: 30rpx;
+	width: 60rpx;
+	height: 60rpx;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	background-color: #f5f5f5;
+}
+
+.back-icon {
+	font-size: 40rpx;
+	color: #333;
+	font-weight: bold;
+}
+
+.page-title {
+	font-size: 36rpx;
+	font-weight: bold;
+	color: #333;
+	flex: 1;
+	text-align: center;
 }
 
 .filter-bar {
@@ -476,6 +535,8 @@ export default {
   display: flex;
   justify-content: space-between;
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
   
   .filter-item {
     flex: 1;

@@ -4,7 +4,7 @@ import request from '@/utils/request'
 
 export function login(data) {
   return request({
-    url: '/admin/auth/login',
+    url: '/auth/login',
     method: 'post',
     data
   })
@@ -12,7 +12,7 @@ export function login(data) {
 
 export function getInfo() {
   return request({
-    url: '/admin/auth/me',
+    url: '/auth/verify',
     method: 'get'
   })
 }
@@ -21,7 +21,7 @@ export function logout() {
   // 后端目前没有logout接口，但前端请求可以保留，方便未来扩展
   // 调用此接口后，前端的token会被清除，实现登出效果
   return request({
-    url: '/admin/auth/logout',
+    url: '/auth/logout',
     method: 'post'
   })
 }

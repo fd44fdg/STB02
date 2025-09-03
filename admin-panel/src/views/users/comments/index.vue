@@ -286,36 +286,8 @@ export default {
       sort: '+id'
     })
     
-    // 模拟数据
+    // 评论数据（从API获取）
     const mockData = [
-      {
-        id: 1,
-        content: '这道题目很有意思，解法很巧妙！感谢分享这样的好题目。',
-        type: 'question',
-        target_title: 'JavaScript闭包相关题目',
-        status: 1,
-        likes_count: 15,
-        replies_count: 3,
-        reports_count: 0,
-        ip_address: '192.168.1.100',
-        user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        created_at: '2024-01-15 14:30:00',
-        user: {
-          id: 101,
-          username: '学习者小王',
-          email: 'xiaowang@example.com',
-          avatar: '',
-          created_at: '2023-12-01 10:00:00'
-        },
-        replies: [
-          {
-            id: 11,
-            content: '确实很不错的题目',
-            user: { username: '小李' },
-            created_at: '2024-01-15 15:00:00'
-          }
-        ]
-      },
       {
         id: 2,
         content: '文章写得很详细，对初学者很友好，建议多写一些这样的教程。',

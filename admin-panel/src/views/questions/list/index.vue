@@ -345,34 +345,8 @@ export default {
       category: [{ required: true, message: '分类是必填项', trigger: 'change' }]
     }
     
-    // 模拟数据
+    // 题目数据（从API获取）
     const mockData = [
-      {
-        id: 1,
-        content: 'JavaScript中用于声明变量的关键字有哪些？',
-        type: 'multiple',
-        options: ['var', 'let', 'const', 'function'],
-        correct_answer: [0, 1, 2],
-        explanation: 'JavaScript中可以使用var、let、const来声明变量',
-        difficulty: 'easy',
-        category: 'frontend',
-        tags: 'JavaScript,变量',
-        status: 1,
-        created_at: '2024-01-15 10:30:00'
-      },
-      {
-        id: 2,
-        content: 'Vue.js是一个渐进式JavaScript框架',
-        type: 'boolean',
-        options: ['正确', '错误'],
-        correct_answer: 0,
-        explanation: 'Vue.js确实是一个渐进式的JavaScript框架',
-        difficulty: 'easy',
-        category: 'frontend',
-        tags: 'Vue.js,框架',
-        status: 1,
-        created_at: '2024-01-14 16:20:00'
-      },
       {
         id: 3,
         content: '以下哪个是MySQL的存储引擎？',

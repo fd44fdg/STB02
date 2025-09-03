@@ -53,7 +53,7 @@ exports.seed = async function(knex) {
       sort_order: 5,
       status: 'active'
     }
-  ]).returning('id');
+  ]);
 
   // 2. 插入管理员用户
   const adminPasswordHash = await bcrypt.hash('admin123', 10);
@@ -80,7 +80,7 @@ exports.seed = async function(knex) {
       total_score: 0,
       study_days: 0
     }
-  ]).returning('id');
+  ]);
 
   // 3. 插入示例题目
   await knex('questions').insert([

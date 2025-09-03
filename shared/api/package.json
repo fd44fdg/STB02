@@ -1,0 +1,12 @@
+{
+  "name": "@shared/api",
+  "version": "0.1.0",
+  "description": "Unified API client for admin-panel and miniapp",
+  "main": "index.js",
+  "module": "index.js",
+  "type": "module",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.2"
+  }
+}

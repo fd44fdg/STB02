@@ -1,193 +1,19 @@
 // 搜索相关API
 
-// 模拟搜索数据
+// 搜索数据结构（空状态，数据从API获取）
 const mockSearchData = {
 	// 知识点数据
-	knowledge: [
-		{
-			id: 1,
-			title: 'Vue 3 Composition API',
-			description: 'Vue 3中的组合式API，提供更灵活的组件逻辑组织方式',
-			category: 'Vue',
-			difficulty: 'intermediate',
-			tags: ['Vue3', 'Composition API', '前端'],
-			type: 'knowledge'
-		},
-		{
-			id: 2,
-			title: 'React Hooks',
-			description: 'React中的钩子函数，让函数组件拥有状态管理能力',
-			category: 'React',
-			difficulty: 'intermediate',
-			tags: ['React', 'Hooks', '状态管理'],
-			type: 'knowledge'
-		},
-		{
-			id: 3,
-			title: 'CSS Grid 布局',
-			description: 'CSS网格布局系统，用于创建复杂的二维布局',
-			category: 'CSS',
-			difficulty: 'advanced',
-			tags: ['CSS', 'Grid', '布局'],
-			type: 'knowledge'
-		},
-		{
-			id: 4,
-			title: 'JavaScript 闭包',
-			description: 'JavaScript中的闭包概念及其应用场景',
-			category: 'JavaScript',
-			difficulty: 'intermediate',
-			tags: ['JavaScript', '闭包', '作用域'],
-			type: 'knowledge'
-		},
-		{
-			id: 5,
-			title: 'Node.js 事件循环',
-			description: 'Node.js的事件循环机制和异步处理',
-			category: 'Node.js',
-			difficulty: 'advanced',
-			tags: ['Node.js', '事件循环', '异步'],
-			type: 'knowledge'
-		}
-	],
+	knowledge: [],
 	
 	// 题目数据
-	questions: [
-		{
-			id: 1,
-			title: 'Vue 3中setup函数的作用是什么？',
-			description: '请详细说明Vue 3 Composition API中setup函数的作用和使用方法',
-			category: 'Vue',
-			difficulty: 'intermediate',
-			questionType: 'essay',
-			tags: ['Vue3', 'setup', 'Composition API'],
-			type: 'question'
-		},
-		{
-			id: 2,
-			title: 'React中useState的使用方法',
-			description: '以下哪个是React中useState Hook的正确使用方法？',
-			category: 'React',
-			difficulty: 'beginner',
-			questionType: 'choice',
-			tags: ['React', 'useState', 'Hooks'],
-			type: 'question'
-		},
-		{
-			id: 3,
-			title: 'CSS Grid与Flexbox的区别',
-			description: '请比较CSS Grid和Flexbox的特点和适用场景',
-			category: 'CSS',
-			difficulty: 'intermediate',
-			questionType: 'essay',
-			tags: ['CSS', 'Grid', 'Flexbox'],
-			type: 'question'
-		},
-		{
-			id: 4,
-			title: 'JavaScript闭包的应用场景',
-			description: '以下哪些是JavaScript闭包的常见应用场景？',
-			category: 'JavaScript',
-			difficulty: 'intermediate',
-			questionType: 'multiple',
-			tags: ['JavaScript', '闭包', '应用'],
-			type: 'question'
-		},
-		{
-			id: 5,
-			title: 'Node.js中的异步处理方式',
-			description: '请列举Node.js中常用的异步处理方式',
-			category: 'Node.js',
-			difficulty: 'advanced',
-			questionType: 'essay',
-			tags: ['Node.js', '异步', 'Promise'],
-			type: 'question'
-		}
-	],
+	questions: [],
 	
 	// 文章数据
-	articles: [
-		{
-			id: 1,
-			title: 'Vue 3 Composition API 深度解析',
-			description: '详细介绍Vue 3中Composition API的使用方法、优势以及与Options API的区别',
-			author: '张三',
-			category: '前端开发',
-			publishTime: '2024-01-15',
-			readTime: 8,
-			viewCount: 1250,
-			likeCount: 89,
-			tags: ['Vue3', 'Composition API', '前端'],
-			type: 'article'
-		},
-		{
-			id: 2,
-			title: 'React Hooks 最佳实践指南',
-			description: '从useState到useEffect，全面掌握React Hooks的使用技巧和最佳实践',
-			author: '李四',
-			category: '前端开发',
-			publishTime: '2024-01-12',
-			readTime: 12,
-			viewCount: 2100,
-			likeCount: 156,
-			tags: ['React', 'Hooks', '最佳实践'],
-			type: 'article'
-		},
-		{
-			id: 3,
-			title: 'CSS Grid 布局完全指南',
-			description: '从基础概念到高级技巧，全面掌握CSS Grid布局系统',
-			author: '王五',
-			category: '前端开发',
-			publishTime: '2024-01-10',
-			readTime: 10,
-			viewCount: 1560,
-			likeCount: 112,
-			tags: ['CSS', 'Grid', '布局'],
-			type: 'article'
-		},
-		{
-			id: 4,
-			title: 'JavaScript 闭包深入理解',
-			description: '深入探讨JavaScript闭包的原理、应用场景和注意事项',
-			author: '赵六',
-			category: '前端开发',
-			publishTime: '2024-01-08',
-			readTime: 6,
-			viewCount: 890,
-			likeCount: 67,
-			tags: ['JavaScript', '闭包', '原理'],
-			type: 'article'
-		},
-		{
-			id: 5,
-			title: 'Node.js 性能优化实战',
-			description: 'Node.js应用性能优化的方法和技巧，提升服务器响应速度',
-			author: '孙七',
-			category: '后端开发',
-			publishTime: '2024-01-05',
-			readTime: 15,
-			viewCount: 1200,
-			likeCount: 98,
-			tags: ['Node.js', '性能优化', '后端'],
-			type: 'article'
-		}
-	]
+	articles: []
 }
 
-// 热门搜索关键词
-const hotSearchKeywords = [
-	'Vue 3',
-	'React Hooks',
-	'JavaScript',
-	'CSS Grid',
-	'Node.js',
-	'TypeScript',
-	'Webpack',
-	'前端面试',
-	'算法',
-	'数据结构'
-]
+// 热门搜索关键词（从API获取）
+const hotSearchKeywords = []
 
 /**
  * 搜索功能

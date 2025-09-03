@@ -1,5 +1,7 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const db = require('../config/db');
+const config = require('../config');
 const { verifyToken: authMiddleware } = require('../middleware/auth');
 const { sendSuccess } = require('../utils/responseHandler');
 const ApiError = require('../utils/ApiError');
@@ -101,20 +103,78 @@ router.get('/favorites/check/:questionId', authMiddleware, asyncHandler(async (r
  * @apiParam {String} [difficulty] 可选的难度筛选
  * @apiParam {String} [mastered] 是否已掌握 ('true' or 'false')
  */
-router.get('/wrong-questions', authMiddleware, asyncHandler(async (req, res) => {
-    const userId = req.user.id;
+router.get('/wrong-questions', asyncHandler(async (req, res) => {
+    const authHeader = req.headers.authorization;
     const { page = 1, limit = 10, mastered } = req.query;
-    // Simplified query
-    const questions = await db.query(`
-        SELECT q.*, wq.wrong_count, wq.last_wrong_time, wq.is_mastered 
-        FROM questions q
-        JOIN user_wrong_questions wq ON q.id = wq.question_id
-        WHERE wq.user_id = ?
-        ORDER BY wq.last_wrong_time DESC
-        LIMIT ? OFFSET ?
-    `, [userId, parseInt(limit), (page - 1) * limit]);
-    const totalResult = await db.query('SELECT COUNT(*) as total FROM user_wrong_questions WHERE user_id = ?', [userId]);
-    sendSuccess(res, { items: questions, total });
+
+    // 检查是否是游客用户
+    if (!authHeader || authHeader.startsWith('Bearer guest_')) {
+        // 游客用户，返回示例错题数据
+        const sampleWrongQuestions = [
+            {
+                id: 1,
+                title: "JavaScript变量声明",
+                content: "JavaScript中var、let、const的区别是什么？",
+                type: "single_choice",
+                difficulty: "easy",
+                options: JSON.stringify(["var有块级作用域，let和const没有", "let和const有块级作用域，var没有", "三者都有块级作用域", "三者都没有块级作用域"]),
+                correct_answer: "let和const有块级作用域，var没有",
+                explanation: "let和const具有块级作用域，var只有函数作用域。const声明的变量不能重新赋值。",
+                wrong_count: 2,
+                last_wrong_time: new Date().toISOString(),
+                is_mastered: 0
+            },
+            {
+                id: 2,
+                title: "CSS定位属性",
+                content: "CSS中position属性的值有哪些？",
+                type: "multiple_choice",
+                difficulty: "easy",
+                options: JSON.stringify(["static", "relative", "absolute", "fixed"]),
+                correct_answer: "static,relative,absolute,fixed",
+                explanation: "position属性有static、relative、absolute、fixed、sticky等值。",
+                wrong_count: 1,
+                last_wrong_time: new Date().toISOString(),
+                is_mastered: 0
+            }
+        ];
+
+        sendSuccess(res, {
+            wrongQuestions: sampleWrongQuestions,
+            total: sampleWrongQuestions.length,
+            isGuest: true
+        });
+        return;
+    }
+
+    // 正常用户，需要认证
+    try {
+        // 验证token
+        const token = authHeader.split(' ')[1];
+        const decoded = jwt.verify(token, config.jwt.secret);
+        const userId = decoded.id;
+
+        // 查询用户的错题
+        const questions = await db.query(`
+            SELECT q.*, wq.wrong_count, wq.last_wrong_time, wq.is_mastered
+            FROM questions q
+            JOIN user_wrong_questions wq ON q.id = wq.question_id
+            WHERE wq.user_id = ?
+            ORDER BY wq.last_wrong_time DESC
+            LIMIT ? OFFSET ?
+        `, [userId, parseInt(limit), (page - 1) * limit]);
+
+        const totalResult = await db.query('SELECT COUNT(*) as total FROM user_wrong_questions WHERE user_id = ?', [userId]);
+
+        sendSuccess(res, {
+            wrongQuestions: questions,
+            total: totalResult[0]?.total || 0,
+            isGuest: false
+        });
+    } catch (error) {
+        // Token验证失败，返回401
+        return res.status(401).json({ success: false, message: '登录已过期，请重新登录' });
+    }
 }));
 
 /**

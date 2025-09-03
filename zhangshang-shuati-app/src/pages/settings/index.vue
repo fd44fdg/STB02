@@ -13,24 +13,24 @@
 			<!-- 通用设置 -->
 			<view class="section">
 				<view class="section-title">通用设置</view>
-				<view class="setting-item" @click="toggleNotification">
-					<view class="item-left">
+				<view class="setting-item">
+					<view class="item-left" @click="toggleNotification">
 						<view class="item-icon notification-icon"></view>
 						<text class="item-text">消息通知</text>
 					</view>
 					<switch :checked="settings.notification" @change="onNotificationChange" color="#4A90E2" />
 				</view>
-				
-				<view class="setting-item" @click="toggleSound">
-					<view class="item-left">
+
+				<view class="setting-item">
+					<view class="item-left" @click="toggleSound">
 						<view class="item-icon sound-icon"></view>
 						<text class="item-text">音效提示</text>
 					</view>
 					<switch :checked="settings.sound" @change="onSoundChange" color="#4A90E2" />
 				</view>
-				
-				<view class="setting-item" @click="toggleVibration">
-					<view class="item-left">
+
+				<view class="setting-item">
+					<view class="item-left" @click="toggleVibration">
 						<view class="item-icon vibration-icon"></view>
 						<text class="item-text">震动反馈</text>
 					</view>
@@ -63,8 +63,8 @@
 					</view>
 				</view>
 				
-				<view class="setting-item" @click="toggleAutoNext">
-					<view class="item-left">
+				<view class="setting-item">
+					<view class="item-left" @click="toggleAutoNext">
 						<view class="item-icon auto-next-icon"></view>
 						<text class="item-text">自动下一题</text>
 					</view>
@@ -97,15 +97,15 @@
 		</view>
 		
 		<!-- 难度选择器 -->
-		<picker-view v-if="showDifficultyModal" class="picker-modal" @click="hideDifficultyPicker">
+		<view v-if="showDifficultyModal" class="picker-modal" @click="hideDifficultyPicker">
 			<view class="picker-content" @click.stop>
 				<view class="picker-header">
 					<text class="picker-title">选择默认难度</text>
 					<text class="picker-cancel" @click="hideDifficultyPicker">取消</text>
 				</view>
 				<view class="picker-options">
-					<view 
-						v-for="(item, index) in difficultyOptions" 
+					<view
+						v-for="(item, index) in difficultyOptions"
 						:key="index"
 						class="picker-option"
 						:class="{ active: settings.difficulty === item.value }"
@@ -115,18 +115,18 @@
 					</view>
 				</view>
 			</view>
-		</picker-view>
-		
+		</view>
+
 		<!-- 题数选择器 -->
-		<picker-view v-if="showQuestionCountModal" class="picker-modal" @click="hideQuestionCountPicker">
+		<view v-if="showQuestionCountModal" class="picker-modal" @click="hideQuestionCountPicker">
 			<view class="picker-content" @click.stop>
 				<view class="picker-header">
 					<text class="picker-title">选择每次练习题数</text>
 					<text class="picker-cancel" @click="hideQuestionCountPicker">取消</text>
 				</view>
 				<view class="picker-options">
-					<view 
-						v-for="count in questionCountOptions" 
+					<view
+						v-for="count in questionCountOptions"
 						:key="count"
 						class="picker-option"
 						:class="{ active: settings.questionCount === count }"
@@ -136,7 +136,7 @@
 					</view>
 				</view>
 			</view>
-		</picker-view>
+		</view>
 	</view>
 </template>
 
@@ -181,9 +181,20 @@ export default {
 	methods: {
 		// 返回上一页
 		goBack() {
-			uni.navigateBack({
-				delta: 1
-			})
+			// 获取当前页面栈
+			const pages = getCurrentPages();
+
+			// 如果页面栈只有一个页面，跳转到首页
+			if (pages.length <= 1) {
+				uni.switchTab({
+					url: '/pages/home/home'
+				});
+			} else {
+				// 正常返回上一页
+				uni.navigateBack({
+					delta: 1
+				});
+			}
 		},
 		
 		// 加载设置
@@ -211,41 +222,65 @@ export default {
 		toggleNotification() {
 			this.settings.notification = !this.settings.notification
 			this.saveSettings()
+			// 添加反馈
+			uni.showToast({
+				title: this.settings.notification ? '已开启消息通知' : '已关闭消息通知',
+				icon: 'none',
+				duration: 1500
+			})
 		},
-		
+
 		onNotificationChange(e) {
 			this.settings.notification = e.detail.value
 			this.saveSettings()
 		},
-		
+
 		// 音效设置
 		toggleSound() {
 			this.settings.sound = !this.settings.sound
 			this.saveSettings()
+			// 添加反馈
+			uni.showToast({
+				title: this.settings.sound ? '已开启音效提示' : '已关闭音效提示',
+				icon: 'none',
+				duration: 1500
+			})
 		},
-		
+
 		onSoundChange(e) {
 			this.settings.sound = e.detail.value
 			this.saveSettings()
 		},
-		
+
 		// 震动设置
 		toggleVibration() {
 			this.settings.vibration = !this.settings.vibration
 			this.saveSettings()
+			// 添加反馈
+			uni.showToast({
+				title: this.settings.vibration ? '已开启震动反馈' : '已关闭震动反馈',
+				icon: 'none',
+				duration: 1500
+			})
 		},
-		
+
 		onVibrationChange(e) {
 			this.settings.vibration = e.detail.value
 			this.saveSettings()
 		},
-		
+
 		// 自动下一题设置
 		toggleAutoNext() {
 			this.settings.autoNext = !this.settings.autoNext
 			this.saveSettings()
+			// 添加反馈
+			uni.showToast({
+				title: this.settings.autoNext ? '已开启自动下一题' : '已关闭自动下一题',
+				icon: 'none',
+				duration: 1500
+			})
 		},
-		
+
 		onAutoNextChange(e) {
 			this.settings.autoNext = e.detail.value
 			this.saveSettings()
@@ -266,6 +301,14 @@ export default {
 			this.settings.difficulty = difficulty
 			this.saveSettings()
 			this.hideDifficultyPicker()
+
+			// 添加反馈
+			const difficultyText = this.difficultyOptions.find(item => item.value === difficulty)?.text || '中等'
+			uni.showToast({
+				title: `默认难度已设为${difficultyText}`,
+				icon: 'none',
+				duration: 1500
+			})
 		},
 		
 		// 显示题数选择器
@@ -283,6 +326,13 @@ export default {
 			this.settings.questionCount = count
 			this.saveSettings()
 			this.hideQuestionCountPicker()
+
+			// 添加反馈
+			uni.showToast({
+				title: `每次练习题数已设为${count}题`,
+				icon: 'none',
+				duration: 1500
+			})
 		},
 		
 		// 清除缓存

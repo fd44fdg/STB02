@@ -277,7 +277,10 @@ export default {
 			
 			// 考试结果
 			score: 0,
-			correctCount: 0
+			correctCount: 0,
+
+			// 用户设置
+			userSettings: null
 		}
 	},
 	computed: {
@@ -300,7 +303,55 @@ export default {
 			return '不及格'
 		}
 	},
+	onLoad() {
+		// 加载用户设置
+		this.loadUserSettings()
+	},
 	methods: {
+		// 加载用户设置
+		loadUserSettings() {
+			try {
+				const settings = uni.getStorageSync('app_settings')
+				if (settings) {
+					this.userSettings = settings
+					console.log('考试页面 - 用户设置已加载:', settings)
+				}
+			} catch (error) {
+				console.error('加载用户设置失败:', error)
+			}
+		},
+
+		// 播放音效
+		playSound(type) {
+			try {
+				if (!this.userSettings || !this.userSettings.sound) return
+
+				if (type === 'submit') {
+					uni.showToast({
+						title: '✓ 试卷已提交',
+						icon: 'none',
+						duration: 1000
+					})
+				}
+			} catch (error) {
+				console.error('播放音效失败:', error)
+			}
+		},
+
+		// 震动反馈
+		vibrate(type) {
+			try {
+				if (!this.userSettings || !this.userSettings.vibration) return
+
+				if (type === 'submit') {
+					uni.vibrateShort({
+						type: 'medium'
+					})
+				}
+			} catch (error) {
+				console.error('震动反馈失败:', error)
+			}
+		},
 		selectSubject(index) {
 			this.selectedSubject = index
 		},
@@ -506,11 +557,36 @@ export default {
 		// 交卷
 		submitExam() {
 			clearInterval(this.timer)
-			
+
 			// 计算得分
 			this.calculateScore()
-			
+
+			// 播放提交音效和震动
+			this.playSound('submit')
+			this.vibrate('submit')
+
+			// 发送考试完成通知
+			this.sendExamCompleteNotification()
+
 			this.examCompleted = true
+		},
+
+		// 发送考试完成通知
+		async sendExamCompleteNotification() {
+			try {
+				if (!this.userSettings || !this.userSettings.notification) return
+
+				const status = this.score >= 60 ? '及格' : '不及格'
+
+				// 导入通知管理器
+				const notificationManager = await import('@/utils/notification.js')
+				await notificationManager.default.sendExamComplete({
+					score: this.score,
+					status: status
+				})
+			} catch (error) {
+				console.error('发送考试完成通知失败:', error)
+			}
 		},
 		
 		// 计算得分

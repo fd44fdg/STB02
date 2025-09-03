@@ -6,7 +6,7 @@ import request from '@/utils/request'
  */
 export function fetchUsers(params) {
   return request({
-    url: '/users', // 完整路径是 /api/v1/admin/users
+    url: '/admin/users',
     method: 'get',
     params
   })
@@ -18,7 +18,7 @@ export function fetchUsers(params) {
  */
 export function createUser(data) {
   return request({
-    url: '/users',
+    url: '/admin/users',
     method: 'post',
     data
   })
@@ -30,7 +30,7 @@ export function createUser(data) {
  */
 export function fetchUser(id) {
   return request({
-    url: `/users/${id}`,
+    url: `/admin/users/${id}`,
     method: 'get'
   })
 }
@@ -42,7 +42,7 @@ export function fetchUser(id) {
  */
 export function updateUser(id, data) {
   return request({
-    url: `/users/${id}`,
+    url: `/admin/users/${id}`,
     method: 'put',
     data
   })
@@ -54,7 +54,7 @@ export function updateUser(id, data) {
  */
 export function deleteUser(id) {
   return request({
-    url: `/users/${id}`,
+    url: `/admin/users/${id}`,
     method: 'delete'
   })
 }

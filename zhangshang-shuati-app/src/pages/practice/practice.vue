@@ -247,21 +247,27 @@ export default {
 			
 			// 模拟题目数据
 			questions: [],
-			
+
 			// 当前模式
 			currentMode: '',
-			pageTitle: ''
+			pageTitle: '',
+
+			// 用户设置
+			userSettings: null
 		}
 	},
 	onLoad(options) {
 		console.log('Practice页面onLoad - 接收到的参数:', options)
-		
+
 		// 确保options对象存在
 		if (!options) {
 			options = {}
 			console.log('options为空，使用默认值')
 		}
-		
+
+		// 加载用户设置并应用默认值
+		this.loadUserSettings()
+
 		// 处理分类参数
 		if (options.category) {
 			const categoryIndex = this.categories.indexOf(options.category)
@@ -270,7 +276,7 @@ export default {
 				console.log('设置分类索引:', categoryIndex)
 			}
 		}
-		
+
 		// 处理URL参数中的模式
 		this.handleModeFromOptions(options)
 	},
@@ -299,6 +305,81 @@ export default {
 		}
 	},
 	methods: {
+		// 加载用户设置
+		loadUserSettings() {
+			try {
+				const settings = uni.getStorageSync('app_settings')
+				if (settings) {
+					// 应用默认难度设置
+					if (settings.difficulty) {
+						const difficultyMap = { 'easy': 0, 'medium': 1, 'hard': 2 }
+						this.selectedDifficulty = difficultyMap[settings.difficulty] || 1
+						console.log('应用默认难度设置:', settings.difficulty, '→', this.selectedDifficulty)
+					}
+
+					// 应用默认题数设置
+					if (settings.questionCount) {
+						this.questionCount = settings.questionCount
+						console.log('应用默认题数设置:', settings.questionCount)
+					}
+
+					// 保存设置供答题时使用
+					this.userSettings = settings
+					console.log('用户设置已加载:', settings)
+				}
+			} catch (error) {
+				console.error('加载用户设置失败:', error)
+			}
+		},
+
+		// 播放音效
+		playSound(type) {
+			try {
+				const settings = this.userSettings || uni.getStorageSync('app_settings')
+				if (!settings || !settings.sound) return
+
+				// 根据类型播放不同音效
+				if (type === 'correct') {
+					// 正确答案音效
+					uni.showToast({
+						title: '✓ 回答正确',
+						icon: 'none',
+						duration: 800
+					})
+				} else if (type === 'wrong') {
+					// 错误答案音效
+					uni.showToast({
+						title: '✗ 回答错误',
+						icon: 'none',
+						duration: 800
+					})
+				}
+			} catch (error) {
+				console.error('播放音效失败:', error)
+			}
+		},
+
+		// 震动反馈
+		vibrate(type) {
+			try {
+				const settings = this.userSettings || uni.getStorageSync('app_settings')
+				if (!settings || !settings.vibration) return
+
+				// 根据类型进行不同强度的震动
+				if (type === 'correct') {
+					// 正确答案轻震动
+					uni.vibrateShort({
+						type: 'light'
+					})
+				} else if (type === 'wrong') {
+					// 错误答案重震动
+					uni.vibrateLong()
+				}
+			} catch (error) {
+				console.error('震动反馈失败:', error)
+			}
+		},
+
 		selectCategory(index) {
 			this.selectedCategory = index
 		},
@@ -558,11 +639,26 @@ export default {
 			
 			if (isCorrect) {
 				this.correctCount++
+				// 播放正确音效和震动
+				this.playSound('correct')
+				this.vibrate('correct')
 			} else {
 				this.wrongQuestions.push(this.currentIndex)
+				// 播放错误音效和震动
+				this.playSound('wrong')
+				this.vibrate('wrong')
 			}
-			
+
 			this.showAnswer = true
+
+			// 检查是否开启自动下一题
+			const settings = this.userSettings || uni.getStorageSync('app_settings')
+			if (settings && settings.autoNext) {
+				// 延迟1.5秒自动跳转下一题
+				setTimeout(() => {
+					this.nextQuestion()
+				}, 1500)
+			}
 		},
 		
 		// 下一题
@@ -579,6 +675,29 @@ export default {
 		// 完成练习
 		completePractice() {
 			this.practiceCompleted = true
+
+			// 发送练习完成通知
+			this.sendPracticeCompleteNotification()
+		},
+
+		// 发送练习完成通知
+		async sendPracticeCompleteNotification() {
+			try {
+				const settings = this.userSettings || uni.getStorageSync('app_settings')
+				if (!settings || !settings.notification) return
+
+				const accuracy = Math.round((this.correctCount / this.questions.length) * 100)
+
+				// 导入通知管理器
+				const notificationManager = await import('@/utils/notification.js')
+				await notificationManager.default.sendPracticeComplete({
+					correctCount: this.correctCount,
+					totalCount: this.questions.length,
+					accuracy: accuracy
+				})
+			} catch (error) {
+				console.error('发送练习完成通知失败:', error)
+			}
 		},
 		
 		// 查看错题

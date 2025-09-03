@@ -9,7 +9,7 @@ const BASE_PATH = path.join(__dirname, 'database');
 
 module.exports = {
   development: {
-    client: config.database.dialect,
+    client: config.database.client || (config.database.dialect === 'mysql' ? 'mysql2' : 'sqlite'),
     connection: config.database.dialect === 'sqlite' 
       ? { filename: config.database.storage }
       : {
@@ -31,10 +31,31 @@ module.exports = {
   // 你可以为 testing 和 production 添加类似配置
   // 例如，testing 环境可以连接到一个专用的测试数据库
   testing: {
-    // ... 类似配置
+    client: 'sqlite3',
+    connection: { filename: path.join(BASE_PATH, 'test.db') },
+    migrations: {
+      directory: path.join(BASE_PATH, 'migrations'),
+    },
+    seeds: {
+      directory: path.join(BASE_PATH, 'seeds'),
+    },
+    useNullAsDefault: true,
   },
 
   production: {
     // ... 类似配置
+  },
+
+  // test environment mirrors sqlite for isolation
+  test: {
+    client: 'sqlite3',
+    connection: { filename: path.join(BASE_PATH, 'test.db') },
+    migrations: {
+      directory: path.join(BASE_PATH, 'migrations'),
+    },
+    seeds: {
+      directory: path.join(BASE_PATH, 'seeds'),
+    },
+    useNullAsDefault: true,
   }
 };

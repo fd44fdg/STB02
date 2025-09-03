@@ -1,15 +1,26 @@
-import axios from 'axios'
+import { createClient } from '../../../shared/api'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import store from '@/store'
 import { getToken } from '@/utils/auth'
 
-// 创建axios实例
-const service = axios.create({
+const service = createClient({
   baseURL: process.env.VUE_APP_BASE_API,
-  timeout: 15000
+  timeout: 15000,
+  getToken: () => getToken(),
+  onUnauthorized: () => {
+    ElMessageBox.confirm('您已被登出，可以取消继续留在该页面，或者重新登录', '确定登出', {
+      confirmButtonText: '重新登录',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }).then(() => {
+      store.dispatch('user/resetToken').then(() => {
+        location.reload()
+      })
+    })
+  }
 })
 
-// 请求拦截器
+// 请求拦截器（保持兼容：@shared/api 已处理 token 注入，这里只保留调试）
 service.interceptors.request.use(
   config => {
     // 在发送请求之前做些什么
@@ -26,7 +37,7 @@ service.interceptors.request.use(
   }
 )
 
-// 响应拦截器
+// 响应拦截器（保持兼容：@shared/api 已做标准化返回，这里只做 UI 提示与旧逻辑容错）
 service.interceptors.response.use(
   /**
    * 如果您想获取http信息，例如headers或status

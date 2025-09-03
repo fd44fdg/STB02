@@ -200,9 +200,20 @@ export default {
   methods: {
 	// 返回上一页
 	goBack() {
-		uni.navigateBack({
-			delta: 1
-		})
+		// 获取当前页面栈
+		const pages = getCurrentPages();
+
+		// 如果页面栈只有一个页面，跳转到首页
+		if (pages.length <= 1) {
+			uni.switchTab({
+				url: '/pages/home/home'
+			});
+		} else {
+			// 正常返回上一页
+			uni.navigateBack({
+				delta: 1
+			});
+		}
 	},
 	
     async loadStudyRecords(isRefresh = false) {
@@ -380,41 +391,16 @@ export default {
       }
     },
     
-    // 获取默认学习数据
+    // 获取默认学习数据（空状态）
     getDefaultStudyData() {
       return {
         stats: {
-          total_questions: 156,
-          total_correct: 128,
-          total_time: 7200, // 2小时
-          study_days: 15
+          total_questions: 0,
+          total_correct: 0,
+          total_time: 0,
+          study_days: 0
         },
-        records: [
-          {
-            id: 1,
-            study_date: new Date().toISOString().split('T')[0],
-            questions_count: 25,
-            correct_count: 22,
-            study_time: 1800, // 30分钟
-            categories: ['JavaScript', 'Vue.js']
-          },
-          {
-            id: 2,
-            study_date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
-            questions_count: 18,
-            correct_count: 15,
-            study_time: 1200, // 20分钟
-            categories: ['CSS', 'HTML']
-          },
-          {
-            id: 3,
-            study_date: new Date(Date.now() - 172800000).toISOString().split('T')[0],
-            questions_count: 30,
-            correct_count: 26,
-            study_time: 2100, // 35分钟
-            categories: ['React', 'JavaScript']
-          }
-        ]
+        records: []
       };
     }
   }

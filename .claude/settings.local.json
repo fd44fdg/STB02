@@ -18,7 +18,8 @@
       "mcp__browserTools__getNetworkErrors",
       "Bash(pkill:*)",
       "Bash(rm:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(node scripts/validate-env.js:*)"
     ],
     "deny": [],
     "ask": []

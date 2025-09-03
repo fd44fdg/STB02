@@ -30,6 +30,11 @@
 				<text class="wechat-icon"></text>
 				<text class="btn-text">{{isLoading ? '登录中...' : '微信一键登录'}}</text>
 			</button>
+
+			<!-- 游客登录按钮 -->
+			<button class="guest-login-btn" @click="handleGuestLogin" :disabled="isLoading">
+				<text class="btn-text">{{isLoading ? '登录中...' : '游客体验'}}</text>
+			</button>
 			
 			<!-- 用户协议和隐私政策 -->
 			<view class="agreement-section">
@@ -125,11 +130,67 @@ export default {
 			}
 		},
 
+		// 游客登录
+		async handleGuestLogin() {
+			if (this.isLoading) return;
+			this.isLoading = true;
+			uni.showLoading({
+				title: '正在登录...'
+			});
+
+			try {
+				// 创建一个游客用户token
+				const guestToken = 'guest_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+
+				// 保存游客token
+				uni.setStorageSync('zs_token', guestToken);
+				uni.setStorageSync('zs_user_info', {
+					id: 'guest',
+					username: '游客用户',
+					nickname: '游客',
+					isGuest: true
+				});
+
+				uni.showToast({
+					title: '游客登录成功',
+					icon: 'success'
+				});
+
+				// 跳转到首页
+				setTimeout(() => {
+					uni.switchTab({
+						url: '/pages/home/home'
+					});
+				}, 1500);
+
+			} catch (error) {
+				uni.showToast({
+					title: '登录失败，请稍后重试',
+					icon: 'none'
+				});
+			} finally {
+				this.isLoading = false;
+				uni.hideLoading();
+			}
+		},
+
 		// 返回上一页
 		goBack() {
-			uni.navigateBack({
-				delta: 1
-			});
+			// 获取当前页面栈
+			const pages = getCurrentPages();
+
+			// 如果页面栈只有一个页面（当前登录页），说明是通过reLaunch进入的
+			if (pages.length <= 1) {
+				// 跳转到首页
+				uni.switchTab({
+					url: '/pages/home/home'
+				});
+			} else {
+				// 正常返回上一页
+				uni.navigateBack({
+					delta: 1
+				});
+			}
 		},
 
 		// 跳转到用户服务协议
@@ -291,20 +352,52 @@ export default {
 		font-size: 40rpx;
 		margin-right: 20rpx;
 	}
-	
+
+	.guest-login-btn {
+		width: 80%;
+		height: 100rpx;
+		background-color: #6c757d;
+		border-radius: 50rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: #ffffff;
+		font-size: 32rpx;
+		font-weight: bold;
+		box-shadow: 0 10rpx 20rpx rgba(108, 117, 125, 0.3);
+		transition: all 0.3s ease;
+		margin-top: 30rpx;
+	}
+
+	.guest-login-btn:active {
+		transform: translateY(2rpx);
+		box-shadow: 0 5rpx 10rpx rgba(108, 117, 125, 0.3);
+	}
+
 	.agreement-section {
 		position: absolute;
 		bottom: 50rpx;
 		left: 0;
 		right: 0;
-		text-align: center;
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		align-items: center;
 		font-size: 24rpx;
 		color: rgba(255, 255, 255, 0.7);
+		padding: 0 40rpx;
+		line-height: 1.8;
 	}
-	
+
+	.agreement-text {
+		color: rgba(255, 255, 255, 0.7);
+		margin: 0 4rpx;
+	}
+
 	.agreement-link {
 		color: #ffffff;
 		text-decoration: underline;
-		margin: 0 5rpx;
+		margin: 0 4rpx;
+		white-space: nowrap;
 	}
 </style>

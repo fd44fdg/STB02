@@ -1,91 +1,53 @@
 const express = require('express');
-const db = require('../config/db');
 const { verifyToken: authMiddleware } = require('../middleware/auth');
 const { sendSuccess } = require('../utils/responseHandler');
-const ApiError = require('../utils/ApiError');
 const { asyncHandler } = require('../middleware/errorHandler');
+const knowledgeService = require('../services/knowledgeService');
 
 const router = express.Router();
 
 // --- Knowledge Categories ---
 
 router.get('/categories', asyncHandler(async (req, res) => {
-    // In a real app, filters like name, status would be added to the query
-    const categories = await db.query(`
-        SELECT c.*, COUNT(p.id) as pointCount 
-        FROM knowledge_categories c 
-        LEFT JOIN knowledge_points p ON c.id = p.category_id 
-        GROUP BY c.id
-    `);
-    sendSuccess(res, { items: categories, total: categories.length });
+    const result = await knowledgeService.getCategories();
+    sendSuccess(res, result);
 }));
 
 router.post('/categories', authMiddleware, asyncHandler(async (req, res) => {
-    const { name, description, sort = 0, status = 1 } = req.body;
-    if (!name) throw new ApiError(400, '分类名称不能为空');
-
-    const result = await db.execute('INSERT INTO knowledge_categories (name, description, sort, status) VALUES (?, ?, ?, ?)', [name, description || '', sort, status]);
-    const newCategory = await db.getOne('SELECT * FROM knowledge_categories WHERE id = ?', [result.insertId]);
+    const newCategory = await knowledgeService.createCategory(req.body);
     sendSuccess(res, newCategory, '分类创建成功', 201);
 }));
 
 router.delete('/categories/:id', authMiddleware, asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    const countResult = await db.getOne('SELECT COUNT(*) as count FROM knowledge_points WHERE category_id = ?', [id]);
-    if (countResult && countResult.count > 0) throw new ApiError(400, '该分类下仍有知识点，无法删除');
-
-    const result = await db.execute('DELETE FROM knowledge_categories WHERE id = ?', [id]);
-    if (!result || result.affectedRows === 0) throw new ApiError(404, '分类不存在');
+    await knowledgeService.deleteCategory(req.params.id);
     sendSuccess(res, null, '分类删除成功');
 }));
 
 // --- Knowledge Points ---
 
 router.get('/points', asyncHandler(async (req, res) => {
-    const { page = 1, limit = 10, category_id } = req.query;
-    // Simplified query. A real implementation would have more filters.
-    let query = 'SELECT p.*, c.name as category_name FROM knowledge_points p LEFT JOIN knowledge_categories c ON p.category_id = c.id';
-    let countQuery = 'SELECT COUNT(*) as total FROM knowledge_points';
-    const params = [];
-
-    if (category_id) {
-        query += ' WHERE p.category_id = ?';
-        countQuery += ' WHERE category_id = ?';
-        params.push(category_id);
-    }
-    
-    query += ' ORDER BY p.created_at DESC LIMIT ? OFFSET ?';
-    params.push(parseInt(limit), (page - 1) * limit);
-
-    const points = await db.query(query, params);
-    const totalResult = await db.getOne(countQuery, params.slice(0, params.length-2));
-
-    sendSuccess(res, { items: points, total: totalResult ? totalResult.total : 0 });
+    const result = await knowledgeService.getPoints(req.query);
+    sendSuccess(res, result);
 }));
 
 router.get('/points/:id', asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    const point = await db.getOne(
-        'SELECT p.*, c.name as category_name FROM knowledge_points p LEFT JOIN knowledge_categories c ON p.category_id = c.id WHERE p.id = ?', 
-        [id]
-    );
-    if (!point) throw new ApiError(404, '知识点不存在');
+    const point = await knowledgeService.getPointById(req.params.id);
     sendSuccess(res, point);
 }));
 
 router.post('/points', authMiddleware, asyncHandler(async (req, res) => {
-    const { name, category_id, difficulty, description, content, status } = req.body;
-    if (!name || !category_id || !difficulty) {
-        throw new ApiError(400, '名称、分类和难度为必填项');
-    }
-    const result = await db.execute(
-        `INSERT INTO knowledge_points (name, category_id, difficulty, description, content, status) VALUES (?, ?, ?, ?, ?, ?)`,
-        [name, category_id, difficulty, description || '', content || '', status !== undefined ? status : 1]
-    );
-    const newPoint = await db.getOne('SELECT * FROM knowledge_points WHERE id = ?', [result.insertId]);
+    const newPoint = await knowledgeService.createPoint(req.body);
     sendSuccess(res, newPoint, '知识点创建成功', 201);
 }));
 
-// PUT and DELETE for points would follow a similar pattern.
+router.put('/points/:id', authMiddleware, asyncHandler(async (req, res) => {
+    const updatedPoint = await knowledgeService.updatePoint(req.params.id, req.body);
+    sendSuccess(res, updatedPoint, '知识点更新成功');
+}));
+
+router.delete('/points/:id', authMiddleware, asyncHandler(async (req, res) => {
+    await knowledgeService.deletePoint(req.params.id);
+    sendSuccess(res, null, '知识点删除成功');
+}));
 
 module.exports = router;

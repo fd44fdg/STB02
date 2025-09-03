@@ -6,7 +6,7 @@ import request from '@/utils/request'
  */
 export function changePassword(data) {
   return request({
-    url: '/password', // 完整路径是 /api/v1/users/password
+    url: '/users/password',
     method: 'put',
     data
   })
@@ -15,7 +15,7 @@ export function changePassword(data) {
 // 发送找回密码验证码
 export function sendResetPasswordCode(email) {
   return request({
-    url: '/api/user/send-reset-code',
+    url: '/users/send-reset-code',
     method: 'post',
     data: { email }
   })
@@ -24,7 +24,7 @@ export function sendResetPasswordCode(email) {
 // 验证找回密码验证码
 export function verifyResetCode(data) {
   return request({
-    url: '/api/user/verify-reset-code',
+    url: '/users/verify-reset-code',
     method: 'post',
     data
   })
@@ -33,7 +33,7 @@ export function verifyResetCode(data) {
 // 重置密码
 export function resetPassword(data) {
   return request({
-    url: '/api/user/reset-password',
+    url: '/users/reset-password',
     method: 'post',
     data
   })
@@ -42,7 +42,7 @@ export function resetPassword(data) {
 // 退出登录
 export function logout() {
   return request({
-    url: '/api/user/logout',
+    url: '/auth/logout',
     method: 'post'
   })
 }
@@ -50,7 +50,7 @@ export function logout() {
 // 注销账号
 export function deleteAccount(password) {
   return request({
-    url: '/api/user/delete-account',
+    url: '/users/delete-account',
     method: 'post',
     data: { password }
   })
@@ -59,7 +59,7 @@ export function deleteAccount(password) {
 // 获取用户安全信息
 export function getUserSecurityInfo() {
   return request({
-    url: '/api/user/security-info',
+    url: '/users/security-info',
     method: 'get'
   })
 }
@@ -67,7 +67,7 @@ export function getUserSecurityInfo() {
 // 获取登录日志
 export function getLoginLogs(params) {
   return request({
-    url: '/api/user/login-logs',
+    url: '/users/login-logs',
     method: 'get',
     params
   })

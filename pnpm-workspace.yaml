@@ -2,6 +2,7 @@ packages:
   - admin-panel
   - backend
   - zhangshang-shuati-app
+  - shared/api
 
 ignoredBuiltDependencies:
   - '@parcel/watcher'

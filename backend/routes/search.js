@@ -1,8 +1,7 @@
 const express = require('express');
-const db = require('../config/db');
 const { sendSuccess } = require('../utils/responseHandler');
-const ApiError = require('../utils/ApiError');
 const { asyncHandler } = require('../middleware/errorHandler');
+const searchService = require('../services/searchService');
 
 const router = express.Router();
 
@@ -24,47 +23,8 @@ const router = express.Router();
  * @apiSuccess {Boolean} hasMore 是否有更多结果.
  */
 router.get('/', asyncHandler(async (req, res) => {
-    const { keyword, type = 'all', page = 1, limit = 10 } = req.query;
-
-    if (!keyword || !keyword.trim()) {
-        return sendSuccess(res, { items: [], total: 0 });
-    }
-
-    const searchTerm = `%${keyword.trim()}%`;
-    const offset = (parseInt(page) - 1) * parseInt(limit);
-    const limitNum = parseInt(limit);
-
-    let queryParts = [];
-    let countParts = [];
-    const params = [];
-
-    if (type === 'all' || type === 'question') {
-        queryParts.push(`(SELECT id, title, 'question' as type, created_at FROM questions WHERE title LIKE ?)`);
-        countParts.push(`(SELECT COUNT(*) FROM questions WHERE title LIKE ?)`);
-        params.push(searchTerm);
-    }
-    if (type === 'all' || type === 'article') {
-        queryParts.push(`(SELECT id, title, 'article' as type, created_at FROM articles WHERE title LIKE ? OR content LIKE ?)`);
-        countParts.push(`(SELECT COUNT(*) FROM articles WHERE title LIKE ? OR content LIKE ?)`);
-        params.push(searchTerm, searchTerm);
-    }
-    if (type === 'all' || type === 'knowledge') {
-        queryParts.push(`(SELECT id, name as title, 'knowledge' as type, created_at FROM knowledge_points WHERE name LIKE ?)`);
-        countParts.push(`(SELECT COUNT(*) FROM knowledge_points WHERE name LIKE ?)`);
-        params.push(searchTerm);
-    }
-
-    if (queryParts.length === 0) {
-        return sendSuccess(res, { items: [], total: 0 });
-    }
-
-    const fullQuery = queryParts.join(' UNION ALL ') + ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
-    const countQuery = `SELECT (${countParts.join(' + ')}) as total`;
-
-    const [results] = await db.query(fullQuery, [...params, limitNum, offset]);
-    const [[{ total }]] = await db.query(countQuery, params);
-
-    sendSuccess(res, { items: results, total });
+    const result = await searchService.globalSearch(req.query);
+    sendSuccess(res, result);
 }));
 
 /**
@@ -76,7 +36,7 @@ router.get('/', asyncHandler(async (req, res) => {
  * @apiSuccess {String[]} keywords 热门关键词列表.
  */
 router.get('/hot-keywords', (req, res) => {
-    const keywords = ['Vue', 'React', 'JavaScript', 'CSS', 'Node.js', 'TypeScript', 'Webpack', '面试', '算法', '性能优化'];
+    const keywords = searchService.getHotKeywords();
     sendSuccess(res, keywords);
 });
 
