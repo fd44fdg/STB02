@@ -391,11 +391,11 @@ import BackToTop from '@/components/BackToTop/index.vue'
 			// 获取类型颜色
 			getTypeColor(type) {
 				const colorMap = {
-					knowledge: '#4A90E2',
-					question: '#52C41A',
-					article: '#FA8C16'
+					knowledge: 'var(--type-knowledge, #4A90E2)',
+					question: 'var(--type-question, #52C41A)',
+					article: 'var(--type-article, #FA8C16)'
 				}
-				return colorMap[type] || '#999999'
+				return colorMap[type] || 'var(--muted, #999999)'
 			},
 			
 			// 获取类型标签
