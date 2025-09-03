@@ -467,7 +467,7 @@ console.log(addFive(3)); // 输出什么？`,
 
 <style scoped>
 	.question-detail {
-		background-color: #f5f5f5;
+		background-color: var(--bg-color, #f5f5f5);
 		min-height: 100vh;
 	}
 	
@@ -477,8 +477,8 @@ console.log(addFive(3)); // 输出什么？`,
 		align-items: center;
 		justify-content: space-between;
 		padding: 20rpx 30rpx;
-		background-color: #ffffff;
-		border-bottom: 1rpx solid #e9ecef;
+		background-color: var(--card-bg, #ffffff);
+		border-bottom: 1rpx solid var(--muted-border, #e9ecef);
 		position: sticky;
 		top: 0;
 		z-index: 100;
@@ -491,7 +491,7 @@ console.log(addFive(3)); // 输出什么？`,
 	
 	.nav-icon {
 		font-size: 40rpx;
-		color: #4A90E2;
+		color: var(--accent, #4A90E2);
 		margin-right: 10rpx;
 	}
 	
@@ -508,7 +508,7 @@ console.log(addFive(3)); // 输出什么？`,
 	.nav-title {
 		font-size: 32rpx;
 		font-weight: bold;
-		color: #333333;
+		color: var(--text-primary, #333333);
 	}
 	
 	.nav-right {
@@ -518,12 +518,12 @@ console.log(addFive(3)); // 输出什么？`,
 	
 	.favorite-icon {
 		font-size: 40rpx;
-		color: #cccccc;
+		color: var(--muted, #cccccc);
 		transition: color 0.3s ease;
 	}
-	
+
 	.favorite-icon.active {
-		color: #FFD700;
+		color: var(--warning, #FFD700);
 	}
 	
 	/* 题目容器 */
@@ -533,7 +533,7 @@ console.log(addFive(3)); // 输出什么？`,
 	
 	/* 题目头部信息 */
 	.question-header {
-		background-color: #ffffff;
+		background-color: var(--card-bg, #ffffff);
 		border-radius: 16rpx;
 		padding: 30rpx;
 		margin-bottom: 30rpx;
@@ -553,13 +553,13 @@ console.log(addFive(3)); // 输出什么？`,
 	
 	.meta-label {
 		font-size: 24rpx;
-		color: #999999;
+		color: var(--text-secondary, #999999);
 		margin-right: 10rpx;
 	}
 	
 	.meta-value {
 		font-size: 26rpx;
-		color: #333333;
+		color: var(--text-primary, #333333);
 		font-weight: bold;
 	}
 	
@@ -574,15 +574,15 @@ console.log(addFive(3)); // 输出什么？`,
 		border-radius: 12rpx;
 	}
 	
-	.difficulty-1 { background-color: #d4edda; color: #155724; }
-	.difficulty-2 { background-color: #cce5ff; color: #004085; }
-	.difficulty-3 { background-color: #fff3cd; color: #856404; }
-	.difficulty-4 { background-color: #f8d7da; color: #721c24; }
-	.difficulty-5 { background-color: #e2e3e5; color: #383d41; }
+	.difficulty-1 { background-color: var(--difficulty-1-bg, #d4edda); color: var(--difficulty-1-fg, #155724); }
+	.difficulty-2 { background-color: var(--difficulty-2-bg, #cce5ff); color: var(--difficulty-2-fg, #004085); }
+	.difficulty-3 { background-color: var(--difficulty-3-bg, #fff3cd); color: var(--difficulty-3-fg, #856404); }
+	.difficulty-4 { background-color: var(--difficulty-4-bg, #f8d7da); color: var(--difficulty-4-fg, #721c24); }
+	.difficulty-5 { background-color: var(--difficulty-5-bg, #e2e3e5); color: var(--difficulty-5-fg, #383d41); }
 	
 	/* 题目内容 */
 	.question-content {
-		background-color: #ffffff;
+		background-color: var(--card-bg, #ffffff);
 		border-radius: 16rpx;
 		padding: 30rpx;
 		margin-bottom: 30rpx;
@@ -596,7 +596,7 @@ console.log(addFive(3)); // 输出什么？`,
 	.title-text {
 		font-size: 32rpx;
 		font-weight: bold;
-		color: #333333;
+		color: var(--text-primary, #333333);
 		line-height: 1.5;
 	}
 	
@@ -606,7 +606,7 @@ console.log(addFive(3)); // 输出什么？`,
 	
 	.description-text {
 		font-size: 28rpx;
-		color: #666666;
+		color: var(--text-secondary, #666666);
 		line-height: 1.6;
 	}
 	
@@ -626,8 +626,8 @@ console.log(addFive(3)); // 输出什么？`,
 	}
 	
 	.code-block {
-		background-color: #f8f9fa;
-		border: 1rpx solid #e9ecef;
+		background-color: var(--muted, #f8f9fa);
+		border: 1rpx solid var(--muted-border, #e9ecef);
 		border-radius: 8rpx;
 		padding: 20rpx;
 		overflow-x: auto;
@@ -655,25 +655,25 @@ console.log(addFive(3)); // 输出什么？`,
 		align-items: center;
 		padding: 25rpx;
 		margin-bottom: 15rpx;
-		background-color: #f8f9fa;
-		border: 2rpx solid #e9ecef;
+		background-color: var(--muted, #f8f9fa);
+		border: 2rpx solid var(--muted-border, #e9ecef);
 		border-radius: 12rpx;
 		transition: all 0.3s ease;
 	}
 	
 	.option-item.selected {
-		background-color: #e3f2fd;
-		border-color: #4A90E2;
+		background-color: var(--option-selected-bg, #e3f2fd);
+		border-color: var(--accent, #4A90E2);
 	}
 	
 	.option-item.correct {
-		background-color: #d4edda;
-		border-color: #28a745;
+		background-color: var(--option-correct-bg, #d4edda);
+		border-color: var(--success, #28a745);
 	}
 	
 	.option-item.wrong {
-		background-color: #f8d7da;
-		border-color: #dc3545;
+		background-color: var(--option-wrong-bg, #f8d7da);
+		border-color: var(--danger, #dc3545);
 	}
 	
 	.option-label {
@@ -682,14 +682,14 @@ console.log(addFive(3)); // 输出什么？`,
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background-color: #4A90E2;
+		background-color: var(--accent, #4A90E2);
 		border-radius: 50%;
 		margin-right: 20rpx;
 	}
 	
 	.label-text {
 		font-size: 24rpx;
-		color: #ffffff;
+		color: var(--card-bg, #ffffff);
 		font-weight: bold;
 	}
 	
@@ -699,7 +699,7 @@ console.log(addFive(3)); // 输出什么？`,
 	
 	.option-text {
 		font-size: 26rpx;
-		color: #333333;
+		color: var(--text-primary, #333333);
 		line-height: 1.5;
 	}
 	
@@ -717,11 +717,11 @@ console.log(addFive(3)); // 输出什么？`,
 	}
 	
 	.status-icon.correct {
-		color: #28a745;
+		color: var(--success, #28a745);
 	}
-	
+
 	.status-icon.wrong {
-		color: #dc3545;
+		color: var(--danger, #dc3545);
 	}
 	
 	/* 填空题 */
@@ -809,7 +809,7 @@ console.log(addFive(3)); // 输出什么？`,
 	
 	/* 答案解析 */
 	.answer-section {
-		background-color: #ffffff;
+		background-color: var(--card-bg, #ffffff);
 		border-radius: 16rpx;
 		padding: 30rpx;
 		margin-bottom: 30rpx;
@@ -819,7 +819,7 @@ console.log(addFive(3)); // 输出什么？`,
 	.answer-header {
 		margin-bottom: 30rpx;
 		padding-bottom: 20rpx;
-		border-bottom: 2rpx solid #e9ecef;
+		border-bottom: 2rpx solid var(--muted-border, #e9ecef);
 	}
 	
 	.answer-title {
@@ -857,7 +857,7 @@ console.log(addFive(3)); // 输出什么？`,
 	.answer-text,
 	.explanation-text {
 		font-size: 26rpx;
-		color: #333333;
+		color: var(--text-primary, #333333);
 		line-height: 1.6;
 	}
 	
@@ -869,8 +869,8 @@ console.log(addFive(3)); // 输出什么？`,
 	
 	.tag-item {
 		padding: 12rpx 20rpx;
-		background-color: #e3f2fd;
-		border: 1rpx solid #4A90E2;
+		background-color: var(--tag-bg, #e3f2fd);
+		border: 1rpx solid var(--accent, #4A90E2);
 		border-radius: 20rpx;
 		transition: all 0.3s ease;
 	}
@@ -898,6 +898,6 @@ console.log(addFive(3)); // 输出什么？`,
 	
 	.loading-text {
 		font-size: 28rpx;
-		color: #999999;
+		color: var(--text-secondary, #999999);
 	}
 </style>
