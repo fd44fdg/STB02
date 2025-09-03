@@ -65,7 +65,7 @@
 						<view class="item-icon question-count-icon"></view>
 						<text class="item-text">每次练习题数</text>
 					</view>
-					<view class="item-right" style="background: var(--icon-accent, #4A90E2);">
+					<view class="item-right" style="background: var(--icon-accent, var(--accent, #4A90E2));">
 						<text class="item-value">{{ settings.questionCount }}题</text>
 						<text class="item-arrow" style="color: var(--text-secondary, #999);">></text>
 					</view>
@@ -76,7 +76,7 @@
 						<view class="item-icon auto-next-icon"></view>
 						<text class="item-text">自动下一题</text>
 					</view>
-					<switch :checked="settings.autoNext" @change="onAutoNextChange" color="#4A90E2" />
+					<switch :checked="settings.autoNext" @change="onAutoNextChange" color="var(--icon-accent, var(--accent, #4A90E2))" />
 				</view>
 			</view>
 

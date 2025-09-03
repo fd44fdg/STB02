@@ -12,15 +12,24 @@ function setMetaThemeColor(color) {
   try {
     if (typeof document !== 'undefined') {
       let meta = document.querySelector('meta[name="theme-color"]')
+    function getCssVar(name, fallback) {
+      try {
+        if (typeof document !== 'undefined' && document.documentElement) {
+          const v = getComputedStyle(document.documentElement).getPropertyValue(name)
+          if (v) return v.trim()
+        }
+      } catch (e) {}
+      return fallback
+    }
       if (!meta) {
         meta = document.createElement('meta')
         meta.name = 'theme-color'
         document.head.appendChild(meta)
       }
-      meta.content = color
+          setMetaThemeColor(getCssVar('--bg-color', '#0b1320'))
     }
   } catch (e) {
-    // ignore
+          setMetaThemeColor(getCssVar('--card-bg', '#ffffff'))
   }
 }
 
@@ -47,8 +56,8 @@ function applyTheme(isDark) {
       if (uni.setNavigationBarColor) {
         try {
           uni.setNavigationBarColor({
-            frontColor: isDark ? '#ffffff' : '#000000',
-            backgroundColor: isDark ? '#0b1320' : '#ffffff'
+            frontColor: getCssVar('--text-primary', isDark ? '#ffffff' : '#000000'),
+            backgroundColor: getCssVar('--bg-color', isDark ? '#0b1320' : '#ffffff')
           })
         } catch (e) {}
       }
@@ -57,9 +66,9 @@ function applyTheme(isDark) {
       if (uni.setTabBarStyle) {
         try {
           uni.setTabBarStyle({
-            color: isDark ? '#9fb0c9' : '#8E8E93',
-            selectedColor: isDark ? '#60a5fa' : '#007AFF',
-            backgroundColor: isDark ? '#071022' : '#ffffff',
+            color: getCssVar('--text-secondary', isDark ? '#9fb0c9' : '#8E8E93'),
+            selectedColor: getCssVar('--accent-active', isDark ? '#60a5fa' : '#007AFF'),
+            backgroundColor: getCssVar('--bg-color', isDark ? '#071022' : '#ffffff'),
             borderStyle: isDark ? 'black' : 'white'
           })
         } catch (e) {}

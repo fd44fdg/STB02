@@ -16,16 +16,16 @@
 
 /* 行为相关颜色 */
 $uni-color-primary: var(--accent, #007aff);
-$uni-color-success: #4cd964;
-$uni-color-warning: #f0ad4e;
-$uni-color-error: #dd524d;
+$uni-color-success: var(--success, #34C759);
+$uni-color-warning: var(--warning, #f0ad4e);
+$uni-color-error: var(--danger, #dd524d);
 
 /* 文字基本颜色 */
 $uni-text-color: var(--text-primary, #333); // 基本色
 $uni-text-color-inverse: var(--text-secondary, #fff); // 反色
 $uni-text-color-grey: var(--text-secondary, #999); // 辅助灰色，如加载更多的提示信息
-$uni-text-color-placeholder: #808080;
-$uni-text-color-disable: #c0c0c0;
+$uni-text-color-placeholder: var(--text-placeholder, #808080);
+$uni-text-color-disable: var(--text-disabled, #c0c0c0);
 
 /* 背景颜色 */
 $uni-bg-color: var(--card-bg, #fff);
