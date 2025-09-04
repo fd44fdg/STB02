@@ -2,14 +2,21 @@
   <view class="favorites-container">
 	<!-- 页面标题 -->
 	<view class="page-header">
-		<view class="back-button" @click="goBack">
-			<text class="back-icon">‹</text>
+		<view class="header-left">
+			<view class="back-button" @tap="goBack">
+				<text class="iconfont icon-arrow-left back-icon"></text>
+			</view>
 		</view>
-		<text class="page-title">我的收藏</text>
+		<view class="header-title">我的收藏</view>
+		<view class="header-right">
+			<view class="filter-toggle" @tap="toggleFilterBar">
+				<text class="iconfont icon-filter"></text>
+			</view>
+		</view>
 	</view>
 	
     <!-- 顶部筛选栏 -->
-    <view class="filter-bar">
+    <view class="filter-bar" v-show="showFilters">
       <view class="filter-item">
         <picker 
           :value="categoryIndex" 
@@ -97,7 +104,6 @@
 
 <script>
 import { getFavorites, removeFavorite } from '@/api/study';
-
 export default {
   data() {
     return {
@@ -108,7 +114,8 @@ export default {
       page: 1,
       limit: 10,
       
-      // 筛选条件
+      // 筛选条件,
+      showFilters: false,
       categoryIndex: 0,
       categories: [
         { name: '全部分类', value: '' },
@@ -148,6 +155,9 @@ export default {
   },
   
   methods: {
+	toggleFilterBar() {
+		this.showFilters = !this.showFilters;
+	},
 	// 返回上一页
 	goBack() {
 		// 获取当前页面栈
@@ -418,55 +428,79 @@ export default {
 
 <style lang="scss" scoped>
 .favorites-container {
-  background-color: #f5f7fa;
+  background-color: var(--bg-color, #f5f7fa);
   min-height: 100vh;
   padding: 30rpx;
 }
 
 /* 页面头部样式 */
 .page-header {
-	display: flex;
+	display: grid;
+	grid-template-columns: 1fr auto 1fr;
 	align-items: center;
 	padding: 20rpx 30rpx;
-	background-color: #fff;
+	background-color: var(--card-bg, #fff);
 	border-radius: 16rpx;
 	margin-bottom: 20rpx;
-	box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
-	position: relative;
+	box-shadow: var(--shadow, 0 2rpx 10rpx rgba(0, 0, 0, 0.05));
 }
 
-.back-button {
-	position: absolute;
-	left: 30rpx;
+.header-left, .header-right {
+	display: flex;
+	align-items: center;
+}
+
+.header-left { justify-content: flex-start; }
+.header-right { justify-content: flex-end; }
+
+.filter-toggle {
 	width: 60rpx;
 	height: 60rpx;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	border-radius: 50%;
-	background-color: #f5f5f5;
+	background-color: var(--card-bg-2);
+	border: 1rpx solid var(--muted-border);
 }
 
+.filter-toggle:active {
+	opacity: .85;
+}
+
+.back-button {
+	width: 60rpx;
+	height: 60rpx;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 50%;
+	background-color: var(--card-bg-2, #f5f5f5);
+	border: 1rpx solid var(--muted-border);
+	transition: background-color 0.2s ease, border-color 0.2s ease, opacity 0.15s ease;
+}
+
+.back-button:active {
+	opacity: 0.85;
+}
 .back-icon {
-	font-size: 40rpx;
-	color: #333;
-	font-weight: bold;
+	font-size: 36rpx;
+	color: var(--text-primary, #333);
 }
 
-.page-title {
+.header-title {
 	font-size: 36rpx;
 	font-weight: bold;
-	color: #333;
-	flex: 1;
+	color: var(--text-primary, #333);
 	text-align: center;
 }
 
 .filter-bar {
-  background-color: #fff;
+  background-color: var(--card-bg, #fff);
   padding: 20rpx 30rpx;
   display: flex;
   justify-content: space-between;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow, 0 2rpx 8rpx rgba(0, 0, 0, 0.1));
   border-radius: 16rpx;
   margin-bottom: 20rpx;
   
@@ -479,14 +513,14 @@ export default {
       justify-content: space-between;
       align-items: center;
       padding: 20rpx;
-      background-color: #f8f9fa;
+      background-color: var(--card-bg-2, #f8f9fa);
       border-radius: 8rpx;
       font-size: 28rpx;
-      color: #333;
+      color: var(--text-primary, #333);
       
       .iconfont {
         font-size: 24rpx;
-        color: #999;
+        color: var(--text-secondary, #999);
       }
     }
   }
@@ -498,7 +532,7 @@ export default {
     .start-practice-btn {
       width: 100%;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
+      color: #ffffff;
       border: none;
       border-radius: 12rpx;
       padding: 24rpx;
@@ -524,11 +558,11 @@ export default {
   padding: 30rpx;
   
   .question-item {
-    background-color: #fff;
+    background-color: var(--card-bg, #fff);
     border-radius: 16rpx;
     padding: 30rpx;
     margin-bottom: 20rpx;
-    box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow, 0 2rpx 12rpx rgba(0, 0, 0, 0.1));
     
     .question-header {
       display: flex;
@@ -538,7 +572,7 @@ export default {
       
       .question-id {
         font-size: 28rpx;
-        color: #666;
+        color: var(--text-secondary, #666);
         font-weight: bold;
       }
       
@@ -548,18 +582,18 @@ export default {
         border-radius: 20rpx;
         
         &.difficulty-easy {
-          background-color: #e6f7e6;
-          color: #52c41a;
+          background-color: var(--success-bg, #e6f7e6);
+          color: var(--success, #52c41a);
         }
         
         &.difficulty-medium {
-          background-color: #fff7e6;
-          color: #fa8c16;
+          background-color: var(--warning-bg, #fff7e6);
+          color: var(--warning-dark, #fa8c16);
         }
         
         &.difficulty-hard {
-          background-color: #fff1f0;
-          color: #f5222d;
+          background-color: var(--danger-bg, #fff1f0);
+          color: var(--danger, #f5222d);
         }
       }
     }
@@ -570,7 +604,7 @@ export default {
       .content-text {
         font-size: 30rpx;
         line-height: 1.6;
-        color: #333;
+        color: var(--text-primary, #333);
         display: -webkit-box;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 3;
@@ -586,15 +620,15 @@ export default {
       
       .category {
         font-size: 26rpx;
-        color: #1890ff;
-        background-color: #e6f7ff;
+        color: var(--accent, #1890ff);
+        background-color: rgba(99, 158, 236, 0.15);
         padding: 4rpx 12rpx;
         border-radius: 12rpx;
       }
       
       .favorited-time {
         font-size: 24rpx;
-        color: #999;
+        color: var(--text-secondary, #999);
       }
     }
     
@@ -606,8 +640,8 @@ export default {
         display: flex;
         align-items: center;
         padding: 10rpx 20rpx;
-        background-color: #fff2f0;
-        color: #f5222d;
+        background-color: var(--danger-bg, #fff2f0);
+        color: var(--danger, #f5222d);
         border-radius: 8rpx;
         font-size: 26rpx;
         
@@ -635,13 +669,13 @@ export default {
   
   .empty-text {
     font-size: 32rpx;
-    color: #333;
+    color: var(--text-primary, #333);
     margin-bottom: 20rpx;
   }
   
   .empty-desc {
     font-size: 28rpx;
-    color: #999;
+    color: var(--text-secondary, #999);
     text-align: center;
     line-height: 1.5;
     margin-bottom: 60rpx;
@@ -651,8 +685,8 @@ export default {
     width: 300rpx;
     height: 80rpx;
     line-height: 80rpx;
-    background-color: #1890ff;
-    color: #fff;
+    background-color: var(--accent, #1890ff);
+    color: var(--card-bg, #fff);
     font-size: 30rpx;
     border-radius: 40rpx;
   }
@@ -664,7 +698,7 @@ export default {
   
   .load-more-text {
     font-size: 28rpx;
-    color: #999;
+    color: var(--text-secondary, #999);
   }
 }
 </style>

@@ -585,12 +585,12 @@ export default {
     }
     
     .reset-btn {
-      background-color: #f5f5f5;
-      color: #666;
+      background-color: var(--card-bg-2, #f5f5f5);
+      color: var(--text-secondary, #666);
     }
     
     .apply-btn {
-      background-color: #1890ff;
+      background-color: var(--accent, #1890ff);
       color: #fff;
     }
   }
@@ -603,7 +603,7 @@ export default {
     .list-title {
       font-size: 32rpx;
       font-weight: bold;
-      color: #333;
+      color: var(--text-primary, #333);
     }
   }
   

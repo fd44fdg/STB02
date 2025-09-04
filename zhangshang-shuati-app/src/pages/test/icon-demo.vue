@@ -141,5 +141,5 @@ export default {
 }
 
 /* 引入iconfont样式 */
-@import url('/static/fonts/iconfont.css');
+@import "@/styles/iconfont.css";
 </style>

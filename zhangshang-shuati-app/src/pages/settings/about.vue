@@ -48,7 +48,12 @@
 </template>
 
 <script>
+	import uniIcons from '@dcloudio/uni-ui/lib/uni-icons/uni-icons.vue';
+
 	export default {
+		components: {
+			uniIcons
+		},
 		data() {
 			return {
 				appVersion: '1.0.1' // Updated version

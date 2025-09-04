@@ -417,20 +417,20 @@
 <style>
 	.edit-profile-container {
 		padding: 20rpx;
-		background-color: #f5f5f5;
+		background-color: var(--bg-color, #f5f5f5);
 		min-height: 100vh;
 	}
 
 	/* 头像编辑区域 */
 	.avatar-section {
-		background: white;
+		background: var(--card-bg, #ffffff);
 		border-radius: 16rpx;
 		padding: 40rpx;
 		margin-bottom: 20rpx;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+		box-shadow: var(--shadow, 0 2rpx 10rpx rgba(0, 0, 0, 0.05));
 	}
 
 	.avatar-wrapper {
@@ -460,7 +460,7 @@
 
 	.avatar-icon {
 		font-size: 60rpx;
-		color: white;
+		color: #ffffff;
 	}
 
 	.avatar-edit-overlay {
@@ -469,7 +469,7 @@
 		left: 0;
 		right: 0;
 		background: rgba(0, 0, 0, 0.6);
-		color: white;
+		color: #ffffff;
 		padding: 10rpx;
 		display: flex;
 		flex-direction: column;
@@ -488,16 +488,16 @@
 
 	.avatar-tip {
 		font-size: 28rpx;
-		color: #666;
+		color: var(--text-secondary, #666);
 	}
 
 	/* 表单容器 */
 	.form-container {
-		background: white;
+		background: var(--card-bg, #ffffff);
 		border-radius: 16rpx;
 		padding: 30rpx;
 		margin-bottom: 20rpx;
-		box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+		box-shadow: var(--shadow, 0 2rpx 10rpx rgba(0, 0, 0, 0.05));
 	}
 
 	.form-item {
@@ -516,12 +516,12 @@
 
 	.label-text {
 		font-size: 32rpx;
-		color: #333;
+		color: var(--text-primary, #333);
 		font-weight: 500;
 	}
 
 	.required-mark {
-		color: #ff4757;
+		color: var(--danger, #ff4757);
 		margin-left: 8rpx;
 		font-size: 32rpx;
 	}
@@ -529,54 +529,54 @@
 	.form-input {
 		width: 100%;
 		height: 88rpx;
-		border: 2rpx solid #e1e8ed;
+		border: 2rpx solid var(--muted-border, #e1e8ed);
 		border-radius: 12rpx;
 		padding: 0 24rpx;
 		font-size: 32rpx;
-		color: #333;
-		background-color: #f8f9fa;
+		color: var(--text-primary, #333);
+		background-color: var(--card-bg-2, #f8f9fa);
 		box-sizing: border-box;
 		transition: all 0.3s ease;
 	}
 
 	.form-input:focus {
-		border-color: #4A90E2;
-		background-color: white;
+		border-color: var(--accent, #4A90E2);
+		background-color: var(--card-bg, #ffffff);
 	}
 
 	.form-input.disabled {
-		background-color: #f0f0f0;
-		color: #999;
+		background-color: var(--card-bg-2, #f0f0f0);
+		color: var(--text-secondary, #999);
 	}
 
 	.form-textarea {
 		width: 100%;
 		min-height: 120rpx;
-		border: 2rpx solid #e1e8ed;
+		border: 2rpx solid var(--muted-border, #e1e8ed);
 		border-radius: 12rpx;
 		padding: 20rpx;
 		font-size: 32rpx;
-		color: #333;
-		background-color: #f8f9fa;
+		color: var(--text-primary, #333);
+		background-color: var(--card-bg-2, #f8f9fa);
 		box-sizing: border-box;
 		resize: none;
 		transition: all 0.3s ease;
 	}
 
 	.form-textarea:focus {
-		border-color: #4A90E2;
-		background-color: white;
+		border-color: var(--accent, #4A90E2);
+		background-color: var(--card-bg, #ffffff);
 	}
 
 	.error-text {
-		color: #ff4757;
+		color: var(--danger, #ff4757);
 		font-size: 24rpx;
 		margin-top: 10rpx;
 		display: block;
 	}
 
 	.input-tip {
-		color: #999;
+		color: var(--text-secondary, #999);
 		font-size: 24rpx;
 		margin-top: 10rpx;
 		display: block;
@@ -590,7 +590,7 @@
 
 	.count-text {
 		font-size: 24rpx;
-		color: #999;
+		color: var(--text-secondary, #999);
 	}
 
 	/* 性别选择 */
@@ -602,19 +602,19 @@
 	.gender-option {
 		flex: 1;
 		height: 80rpx;
-		border: 2rpx solid #e1e8ed;
+		border: 2rpx solid var(--muted-border, #e1e8ed);
 		border-radius: 12rpx;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		background: #f8f9fa;
+		background: var(--card-bg-2, #f8f9fa);
 		transition: all 0.3s ease;
 	}
 
 	.gender-option.active {
-		border-color: #4A90E2;
-		background: #e3f2fd;
+		border-color: var(--accent, #4A90E2);
+		background: rgba(99, 158, 236, 0.15);
 	}
 
 	.gender-icon {
@@ -624,11 +624,11 @@
 
 	.gender-text {
 		font-size: 24rpx;
-		color: #666;
+		color: var(--text-secondary, #666);
 	}
 
 	.gender-option.active .gender-text {
-		color: #4A90E2;
+		color: var(--accent, #4A90E2);
 		font-weight: 500;
 	}
 
@@ -639,28 +639,28 @@
 
 	.picker-content {
 		height: 88rpx;
-		border: 2rpx solid #e1e8ed;
+		border: 2rpx solid var(--muted-border, #e1e8ed);
 		border-radius: 12rpx;
 		padding: 0 24rpx;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		background-color: #f8f9fa;
+		background-color: var(--card-bg-2, #f8f9fa);
 		transition: all 0.3s ease;
 	}
 
 	.picker-text {
 		font-size: 32rpx;
-		color: #333;
+		color: var(--text-primary, #333);
 	}
 
 	.picker-text.placeholder {
-		color: #999;
+		color: var(--text-secondary, #999);
 	}
 
 	.picker-arrow {
 		font-size: 28rpx;
-		color: #999;
+		color: var(--text-secondary, #999);
 	}
 
 	/* 学习目标选择 */
@@ -672,24 +672,24 @@
 
 	.goal-option {
 		padding: 20rpx 30rpx;
-		border: 2rpx solid #e1e8ed;
+		border: 2rpx solid var(--muted-border, #e1e8ed);
 		border-radius: 50rpx;
-		background: #f8f9fa;
+		background: var(--card-bg-2, #f8f9fa);
 		transition: all 0.3s ease;
 	}
 
 	.goal-option.active {
-		border-color: #4A90E2;
-		background: #e3f2fd;
+		border-color: var(--accent, #4A90E2);
+		background: rgba(99, 158, 236, 0.15);
 	}
 
 	.goal-text {
 		font-size: 28rpx;
-		color: #666;
+		color: var(--text-secondary, #666);
 	}
 
 	.goal-option.active .goal-text {
-		color: #4A90E2;
+		color: var(--accent, #4A90E2);
 		font-weight: 500;
 	}
 
@@ -703,8 +703,8 @@
 
 	.save-btn {
 		height: 88rpx;
-		background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%);
-		color: white;
+		background: linear-gradient(135deg, var(--accent, #4A90E2) 0%, var(--accent-dark, #357ABD) 100%);
+		color: #ffffff;
 		border: none;
 		border-radius: 12rpx;
 		font-size: 32rpx;
@@ -725,9 +725,9 @@
 
 	.cancel-btn {
 		height: 88rpx;
-		background: white;
-		color: #666;
-		border: 2rpx solid #e1e8ed;
+		background: var(--card-bg, #ffffff);
+		color: var(--text-secondary, #666);
+		border: 2rpx solid var(--muted-border, #e1e8ed);
 		border-radius: 12rpx;
 		font-size: 32rpx;
 		display: flex;
@@ -737,16 +737,16 @@
 	}
 
 	.cancel-btn:active {
-		background: #f8f9fa;
+		background: var(--card-bg-2, #f8f9fa);
 	}
 
 	/* 修改密码区域 */
 	.password-section {
-		background: white;
+		background: var(--card-bg, #ffffff);
 		border-radius: 16rpx;
 		padding: 30rpx;
 		margin-bottom: 40rpx;
-		box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+		box-shadow: var(--shadow, 0 2rpx 10rpx rgba(0, 0, 0, 0.05));
 	}
 
 	.password-item {
@@ -763,11 +763,11 @@
 	.password-text {
 		flex: 1;
 		font-size: 32rpx;
-		color: #333;
+		color: var(--text-primary, #333);
 	}
 
 	.password-arrow {
 		font-size: 28rpx;
-		color: #999;
+		color: var(--text-secondary, #999);
 	}
 </style>

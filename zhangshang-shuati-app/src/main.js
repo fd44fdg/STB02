@@ -3,6 +3,9 @@ import App from './App'
 import store from './store' // Import the main store
 import { initTabBarEnhancer, autoDetectCurrentPage } from './utils/tabbar-enhancer'
 
+// 引入CSS兼容性修复文件
+import './styles/compatibility.css'
+
 // 全局错误处理
 Vue.config.errorHandler = function(err, vm, info) {
   console.error('Vue全局错误:', err, info);

@@ -8,6 +8,13 @@
 			}
 		},
 		{
+			"path": "pages/exam/session",
+			"style": {
+				"navigationBarTitleText": "考试会话",
+				"navigationStyle": "custom"
+			}
+		},
+		{
 			"path": "pages/index/index",
 			"style": {
 				"navigationBarTitleText": "首页",

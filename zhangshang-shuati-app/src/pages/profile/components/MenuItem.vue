@@ -37,15 +37,15 @@ defineEmits(['click']);
     align-items: center;
     justify-content: space-between;
     padding: 30rpx;
-    background-color: #fff;
-    border-bottom: 1rpx solid #f5f5f5;
-    transition: background-color 0.2s;
+    background-color: var(--card-bg, #fff);
+    border-bottom: 1rpx solid var(--muted-border, #f5f5f5);
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
 .menu-item:last-child {
     border-bottom: none;
 }
 .menu-item:active {
-    background-color: #f9f9f9;
+    background-color: var(--card-bg-2, #f9f9f9);
 }
 .menu-content {
     display: flex;
@@ -54,6 +54,6 @@ defineEmits(['click']);
 }
 .menu-title {
     font-size: 30rpx;
-    color: #333;
+    color: var(--text-primary, #333);
 }
 </style> 

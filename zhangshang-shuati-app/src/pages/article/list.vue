@@ -13,9 +13,9 @@
 		
 		<!-- 分类标签 -->
 		<scroll-view class="category-scroll" scroll-x="true" show-scrollbar="false">
-			padding: 20rpx;
-			background-color: var(--bg-color, #f5f5f5);
-			min-height: 100vh;
+			<view class="category-list">
+				<view 
+					v-for="category in categories" 
 					:key="category.key"
 					class="category-item" 
 					:class="{active: selectedCategory === category.key}"
@@ -26,13 +26,13 @@
 				</view>
 			</view>
 		</scroll-view>
-			flex: 1;
-			display: flex;
-			align-items: center;
-			padding: 20rpx 30rpx;
-			background-color: var(--card-bg, #ffffff);
-			border-radius: 25rpx;
-			box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.1);
+		
+		<!-- 排序选项 -->
+		<view class="sort-options">
+			<view class="sort-left">
+				<text class="article-count">共 {{filteredArticles.length}} 篇文章</text>
+			</view>
+			<view class="sort-right">
 				<view 
 					v-for="sort in sortOptions" 
 					:key="sort.key"
@@ -41,92 +41,81 @@
 					@click="selectSort(sort.key)"
 				>
 					<text class="sort-text">{{sort.name}}</text>
-			background-color: var(--card-bg, #ffffff);
-			border-radius: 50%;
-			box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.1);
+				</view>
+			</view>
+		</view>
 		
 		<!-- 文章列表 -->
 		<view class="articles-container">
-			font-size: 32rpx;
-			color: var(--text-secondary, #999999);
-			margin-right: 15rpx;
+			<view v-if="loading" class="loading-container">
+				<text class="loading-text">加载中...</text>
+			</view>
 			
 			<view v-else-if="filteredArticles.length === 0" class="empty-container">
 				<text class="empty-icon">📄</text>
-			font-size: 28rpx;
-			color: var(--text-secondary, #999999);
 			</view>
 			
 			<view v-else class="articles-list">
-			font-size: 32rpx;
-			color: var(--accent, #4A90E2);
-					:key="article.id"
-					class="article-item" 
-					@click="goToArticleDetail(article)"
-			display: inline-flex;
-			flex-direction: column;
-			align-items: center;
-			padding: 20rpx 30rpx;
-			margin-right: 20rpx;
-			background-color: var(--card-bg, #ffffff);
-			border: 2rpx solid var(--muted-border, #e9ecef);
-			min-width: 120rpx;
-			transition: all 0.3s ease;
-						<view v-else class="cover-placeholder">
-							<text class="placeholder-icon">📄</text>
-						</view>
-			background-color: var(--accent, #4A90E2);
-			border-color: var(--accent, #4A90E2);
-						<view class="article-tags">
-							<view class="tag-item category-tag" :style="{backgroundColor: getCategoryColor(article.category)}">
-								<text class="tag-text">{{article.category}}</text>
-			font-size: 26rpx;
-			color: var(--text-primary, #333333);
-			font-weight: bold;
-			margin-bottom: 5rpx;
-							<view v-if="article.isNew" class="tag-item new-tag">
-								<text class="tag-text">🆕 最新</text>
+				<view 
+						v-for="article in filteredArticles" 
+						:key="article.id"
+						class="article-item" 
+						@click="goToArticleDetail(article)"
+					>
+						<!-- 文章封面 -->
+						<view class="article-cover">
+							<view v-if="article.coverImage" class="cover-image-container">
+								<image class="cover-image" :src="article.coverImage" mode="aspectFill"></image>
 							</view>
-			font-size: 20rpx;
-			color: var(--text-secondary, #999999);
-					
-					<!-- 文章内容 -->
-					<view class="article-content">
-			padding: 12rpx 20rpx;
-			background-color: var(--muted, #f8f9fa);
-			border-radius: 16rpx;
-			border: 1rpx solid var(--muted-border, #e9ecef);
-			transition: all 0.3s ease;
-								<text class="meta-item">{{formatDate(article.publishTime)}}</text>
+							<view v-else class="cover-placeholder">
+								<text class="placeholder-icon">📄</text>
 							</view>
-						</view>
-			background-color: var(--accent, #4A90E2);
-			border-color: var(--accent, #4A90E2);
-							<text class="summary-text">{{article.summary}}</text>
+							
+							<view class="article-tags">
+								<view class="tag-item category-tag" :style="{backgroundColor: getCategoryColor(article.category)}">
+									<text class="tag-text">{{article.category}}</text>
+								</view>
+								<view v-if="article.isNew" class="tag-item new-tag">
+									<text class="tag-text">🆕 最新</text>
+								</view>
+							</view>
 						</view>
 						
-			font-size: 22rpx;
-			color: var(--text-secondary, #666666);
+						<!-- 文章内容 -->
+						<view class="article-content">
+							<view class="article-header">
+								<text class="article-title">{{article.title}}</text>
+								<view class="article-meta">
+									<text class="meta-item">{{article.author}}</text>
+									<text class="meta-separator">·</text>
+									<text class="meta-item">{{formatDate(article.publishTime)}}</text>
+								</view>
+							</view>
+							<view class="article-summary">
+								<text class="summary-text">{{article.summary}}</text>
+							</view>
+						</view>
+						
+						<view class="article-footer">
+							<view class="article-stats">
 								<view class="stat-item">
 									<text class="stat-icon">👁</text>
 									<text class="stat-text">{{formatNumber(article.viewCount)}}</text>
 								</view>
-			padding: 100rpx 0;
-			text-align: center;
-			background-color: var(--card-bg, #ffffff);
+								<view class="stat-item">
+									<text class="stat-icon">👍</text>
+									<text class="stat-text">{{formatNumber(article.likeCount)}}</text>
 								</view>
 								<view class="stat-item">
 									<text class="stat-icon">💬</text>
-			font-size: 80rpx;
-			color: var(--muted, #cccccc);
-			display: block;
-			margin-bottom: 20rpx;
+									<text class="stat-text">{{formatNumber(article.commentCount)}}</text>
+								</view>
+							</view>
 							<view class="read-info">
 								<text class="read-time">{{article.readTime}}分钟阅读</text>
 								<text class="read-arrow">›</text>
-			font-size: 20rpx;
-			color: var(--card-bg, #ffffff);
-			font-weight: bold;
+							</view>
+						</view>
 				</view>
 			</view>
 		</view>
@@ -134,9 +123,9 @@
 		<!-- 加载更多 -->
 		<view v-if="hasMore && !loading" class="load-more" @click="loadMore">
 			<text class="load-more-text">加载更多</text>
-			font-size: 32rpx;
-			font-weight: bold;
-			color: var(--text-primary, #333333);
+		</view>
+		
+		<!-- 筛选弹窗 -->
 		<view v-if="showFilter" class="filter-modal" @click="hideFilterModal">
 			<view class="filter-content" @click.stop>
 				<view class="filter-header">
@@ -146,14 +135,14 @@
 				
 				<view class="filter-section">
 					<view class="section-title">
-			margin: 0 10rpx;
-			font-size: 22rpx;
-			color: var(--muted, #cccccc);
+						<text>文章类型</text>
+					</view>
+					<view class="filter-options">
 						<view 
 							v-for="type in articleTypes" 
 							:key="type.key"
-			font-size: 26rpx;
-			color: var(--text-secondary, #666666);
+							class="filter-option"
+							:class="{active: selectedTypes.includes(type.key)}"
 							@click="toggleType(type.key)"
 						>
 							<text class="option-text">{{type.name}}</text>
@@ -162,387 +151,388 @@
 				</view>
 				
 				<view class="filter-section">
-			background-color: var(--card-bg, #ffffff);
-			border-radius: 16rpx;
-			overflow: hidden;
-			box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.1);
-			transition: transform 0.3s ease;
+					<view class="section-title">
+						<text>难度等级</text>
+					</view>
+					<view class="filter-options">
+						<view 
 							v-for="level in difficultyLevels" 
 							:key="level.key"
-							class="filter-option" 
-			width: 100%;
-			height: 100%;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			background: var(--cover-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+							class="filter-option"
+							:class="{active: selectedLevels.includes(level.key)}"
+							@click="toggleLevel(level.key)"
+						>
+							<text class="option-text">{{level.name}}</text>
+						</view>
+					</view>
 				</view>
 				
 				<view class="filter-actions">
-			background-color: rgba(255, 87, 34, 0.9);
+					<view class="reset-btn" @click="resetFilter">
 						<text class="btn-text">重置</text>
 					</view>
 					<view class="confirm-btn" @click="applyFilter">
-			background-color: rgba(76, 175, 80, 0.9);
+						<text class="btn-text">确定</text>
 					</view>
 				</view>
 			</view>
-			font-size: 22rpx;
-			color: var(--accent, #4A90E2);
+		</view>
+	</view>
 </template>
 
 <script>
-			font-size: 28rpx;
-			color: var(--accent, #4A90E2);
-			return {
-				loading: false,
-				hasMore: true,
-			padding: 30rpx;
-			text-align: center;
-			background-color: var(--card-bg, #ffffff);
-				selectedTypes: [],
-				selectedLevels: [],
-				categories: [
-					{ key: 'all', name: '全部', count: 156 },
-					{ key: 'frontend', name: '前端开发', count: 45 },
-			font-size: 28rpx;
-			color: var(--accent, #4A90E2);
-					{ key: 'ai', name: '人工智能', count: 22 },
-					{ key: 'devops', name: 'DevOps', count: 18 },
-					{ key: 'design', name: '设计', count: 8 }
-				],
-				sortOptions: [
-					{ key: 'latest', name: '最新' },
-					{ key: 'popular', name: '热门' },
-					{ key: 'views', name: '浏览量' }
-				],
-				articleTypes: [
-					{ key: 'tutorial', name: '教程' },
-					{ key: 'experience', name: '经验分享' },
-					{ key: 'news', name: '技术资讯' },
-					{ key: 'interview', name: '面试题' }
-				],
-				difficultyLevels: [
-					{ key: 'beginner', name: '入门' },
-					{ key: 'intermediate', name: '进阶' },
-					{ key: 'advanced', name: '高级' }
-				],
-				// 模拟文章数据
-				articles: [
+export default {
+	data() {
+		return {
+			loading: false,
+			hasMore: true,
+			loadingMore: false,
+			page: 1,
+			limit: 10,
+			showFilter: false,
+			selectedCategory: 'all',
+			selectedSort: 'latest',
+			selectedTypes: [],
+			selectedLevels: [],
+			categories: [
+				{ key: 'all', name: '全部', count: 156 },
+				{ key: 'frontend', name: '前端开发', count: 45 },
+				{ key: 'ai', name: '人工智能', count: 22 },
+				{ key: 'devops', name: 'DevOps', count: 18 },
+				{ key: 'design', name: '设计', count: 8 }
+			],
+			sortOptions: [
+				{ key: 'latest', name: '最新' },
+				{ key: 'popular', name: '热门' },
+				{ key: 'views', name: '浏览量' }
+			],
+			articleTypes: [
+				{ key: 'tutorial', name: '教程' },
+				{ key: 'experience', name: '经验分享' },
+				{ key: 'news', name: '技术资讯' },
+				{ key: 'interview', name: '面试题' }
+			],
+			difficultyLevels: [
+				{ key: 'beginner', name: '入门' },
+				{ key: 'intermediate', name: '进阶' },
+				{ key: 'advanced', name: '高级' }
+			],
+			// 模拟文章数据
+			articles: [
+				{
+					id: 1,
+					title: 'Vue 3 Composition API 深度解析',
+					summary: '详细介绍Vue 3中Composition API的使用方法、优势以及与Options API的区别，帮助开发者更好地理解和使用这一新特性。',
+					author: '张三',
+					category: 'frontend',
+					type: 'tutorial',
+					difficulty: 'intermediate',
+					publishTime: '2024-01-15',
+					readTime: 8,
+					viewCount: 1250,
+					likeCount: 89,
+					commentCount: 23,
+					isHot: true,
+					isNew: false,
+					coverImage: null
+				},
+				{
+					id: 2,
+					title: 'React Hooks 最佳实践指南',
+					summary: '从useState到useEffect，从自定义Hook到性能优化，全面掌握React Hooks的使用技巧和最佳实践。',
+					author: '李四',
+					category: 'frontend',
+					type: 'experience',
+					difficulty: 'advanced',
+					publishTime: '2024-01-12',
+					readTime: 12,
+					viewCount: 2100,
+					likeCount: 156,
+					commentCount: 45,
+					isHot: true,
+					isNew: false,
+					coverImage: null
+				},
+				{
+					id: 3,
+					title: 'Node.js 微服务架构实战',
+					summary: '基于Node.js构建微服务架构的完整指南，包括服务拆分、通信机制、监控和部署等关键环节。',
+					author: '王五',
+					category: 'backend',
+					type: 'tutorial',
+					difficulty: 'advanced',
+					publishTime: '2024-01-10',
+					readTime: 15,
+					viewCount: 890,
+					likeCount: 67,
+					commentCount: 18,
+					isHot: false,
+					isNew: true,
+					coverImage: null
+				},
+				{
+					id: 4,
+					title: 'CSS Grid 布局完全指南',
+					summary: '从基础概念到高级技巧，全面掌握CSS Grid布局系统，创建复杂而灵活的网页布局。',
+					author: '赵六',
+					category: 'frontend',
+					type: 'tutorial',
+					difficulty: 'intermediate',
+					publishTime: '2024-01-08',
+					readTime: 10,
+					viewCount: 1560,
+					likeCount: 112,
+					commentCount: 31,
+					isHot: false,
+					isNew: false,
+					coverImage: null
+				},
+				{
+					id: 5,
+					title: 'Flutter 跨平台开发入门',
+					summary: '零基础学习Flutter，从环境搭建到第一个应用，快速入门跨平台移动开发。',
+					author: '孙七',
+					category: 'mobile',
+					type: 'tutorial',
+					difficulty: 'beginner',
+					publishTime: '2024-01-05',
+					readTime: 6,
+					viewCount: 780,
+					likeCount: 45,
+					commentCount: 12,
+					isHot: false,
+					isNew: true,
+					coverImage: null
+				}
+			]
+		}
+	},
+	computed: {
+		filteredArticles() {
+			let filtered = this.articles
+			
+			// 按分类筛选
+			if (this.selectedCategory !== 'all') {
+				filtered = filtered.filter(article => article.category === this.selectedCategory)
+			}
+			
+			// 按类型筛选
+			if (this.selectedTypes.length > 0) {
+				filtered = filtered.filter(article => this.selectedTypes.includes(article.type))
+			}
+			
+			// 按难度筛选
+			if (this.selectedLevels.length > 0) {
+				filtered = filtered.filter(article => this.selectedLevels.includes(article.difficulty))
+			}
+			
+			return filtered
+		},
+		
+		sortedArticles() {
+			const articles = [...this.filteredArticles]
+			
+			switch (this.selectedSort) {
+				case 'latest':
+					return articles.sort((a, b) => new Date(b.publishTime) - new Date(a.publishTime))
+				case 'popular':
+					return articles.sort((a, b) => b.likeCount - a.likeCount)
+				case 'views':
+					return articles.sort((a, b) => b.viewCount - a.viewCount)
+				default:
+					return articles
+			}
+		}
+	},
+	onLoad() {
+		this.loadArticles()
+	},
+	methods: {
+		// 加载文章列表
+		async loadArticles() {
+			this.loading = true
+			try {
+				// 模拟API调用
+				await this.simulateApiCall()
+				// 文章数据已在data中定义
+			} catch (error) {
+				console.error('加载文章失败:', error)
+				uni.showToast({
+					title: '加载失败',
+					icon: 'none'
+				})
+			} finally {
+				this.loading = false
+			}
+		},
+		
+		// 模拟API调用
+		simulateApiCall() {
+			return new Promise((resolve) => {
+				setTimeout(resolve, 800)
+			})
+		},
+		
+		// 选择分类
+		selectCategory(category) {
+			this.selectedCategory = category
+		},
+		
+		// 选择排序
+		selectSort(sort) {
+			this.selectedSort = sort
+		},
+		
+		// 跳转到搜索页面
+		goToSearch() {
+			uni.navigateTo({
+				url: '/pages/search/search'
+			})
+		},
+		
+		// 跳转到文章详情
+		goToArticleDetail(article) {
+			uni.navigateTo({
+				url: `/pages/article/detail?id=${article.id}`
+			})
+		},
+		
+		// 显示筛选弹窗
+		showFilterModal() {
+			this.showFilter = true
+		},
+		
+		// 隐藏筛选弹窗
+		hideFilterModal() {
+			this.showFilter = false
+		},
+		
+		// 切换文章类型
+		toggleType(type) {
+			const index = this.selectedTypes.indexOf(type)
+			if (index > -1) {
+				this.selectedTypes.splice(index, 1)
+			} else {
+				this.selectedTypes.push(type)
+			}
+		},
+		
+		// 切换难度等级
+		toggleLevel(level) {
+			const index = this.selectedLevels.indexOf(level)
+			if (index > -1) {
+				this.selectedLevels.splice(index, 1)
+			} else {
+				this.selectedLevels.push(level)
+			}
+		},
+		
+		// 重置筛选
+		resetFilter() {
+			this.selectedTypes = []
+			this.selectedLevels = []
+		},
+		
+		// 应用筛选
+		applyFilter() {
+			this.hideFilterModal()
+			// 筛选逻辑已在computed中处理
+		},
+		
+		// 加载更多
+		async loadMore() {
+			if (this.loadingMore || !this.hasMore) return
+			
+			this.loadingMore = true
+			this.page++
+			
+			try {
+				// 模拟API调用
+				await new Promise(resolve => setTimeout(resolve, 1000))
+				
+				// 模拟更多文章数据
+				const moreArticles = [
 					{
-						id: 1,
-						title: 'Vue 3 Composition API 深度解析',
-						summary: '详细介绍Vue 3中Composition API的使用方法、优势以及与Options API的区别，帮助开发者更好地理解和使用这一新特性。',
-						author: '张三',
+						id: this.articles.length + 1,
+						title: `加载的新文章 ${this.page}`,
+						summary: '这是通过加载更多功能获取的新文章内容...',
+						author: '系统',
 						category: 'frontend',
-						type: 'tutorial',
-						difficulty: 'intermediate',
-						publishTime: '2024-01-15',
-						readTime: 8,
-						viewCount: 1250,
-						likeCount: 89,
-						commentCount: 23,
-						isHot: true,
-						isNew: false,
-						coverImage: null
-					},
-					{
-						id: 2,
-						title: 'React Hooks 最佳实践指南',
-						summary: '从useState到useEffect，从自定义Hook到性能优化，全面掌握React Hooks的使用技巧和最佳实践。',
-						author: '李四',
-						category: 'frontend',
-						type: 'experience',
-						difficulty: 'advanced',
-						publishTime: '2024-01-12',
-						readTime: 12,
-						viewCount: 2100,
-						likeCount: 156,
-						commentCount: 45,
-						isHot: true,
-						isNew: false,
-						coverImage: null
-					},
-					{
-						id: 3,
-						title: 'Node.js 微服务架构实战',
-						summary: '基于Node.js构建微服务架构的完整指南，包括服务拆分、通信机制、监控和部署等关键环节。',
-						author: '王五',
-						category: 'backend',
-						type: 'tutorial',
-						difficulty: 'advanced',
-						publishTime: '2024-01-10',
-						readTime: 15,
-						viewCount: 890,
-						likeCount: 67,
-						commentCount: 18,
-						isHot: false,
-						isNew: true,
-						coverImage: null
-					},
-					{
-						id: 4,
-						title: 'CSS Grid 布局完全指南',
-						summary: '从基础概念到高级技巧，全面掌握CSS Grid布局系统，创建复杂而灵活的网页布局。',
-						author: '赵六',
-						category: 'frontend',
-						type: 'tutorial',
-						difficulty: 'intermediate',
-						publishTime: '2024-01-08',
-						readTime: 10,
-						viewCount: 1560,
-						likeCount: 112,
-						commentCount: 31,
-						isHot: false,
-						isNew: false,
-						coverImage: null
-					},
-					{
-						id: 5,
-						title: 'Flutter 跨平台开发入门',
-						summary: '零基础学习Flutter，从环境搭建到第一个应用，快速入门跨平台移动开发。',
-						author: '孙七',
-						category: 'mobile',
 						type: 'tutorial',
 						difficulty: 'beginner',
-						publishTime: '2024-01-05',
-						readTime: 6,
-						viewCount: 780,
-						likeCount: 45,
-						commentCount: 12,
+						publishTime: new Date().toISOString().slice(0,10),
+						readTime: Math.floor(Math.random() * 10) + 1,
+						viewCount: Math.floor(Math.random() * 1000),
+						likeCount: Math.floor(Math.random() * 100),
+						commentCount: Math.floor(Math.random() * 50),
 						isHot: false,
 						isNew: true,
 						coverImage: null
 					}
 				]
-			}
-		},
-		computed: {
-			filteredArticles() {
-				let filtered = this.articles
 				
-				// 按分类筛选
-				if (this.selectedCategory !== 'all') {
-					filtered = filtered.filter(article => article.category === this.selectedCategory)
-				}
+				this.articles.push(...moreArticles)
 				
-				// 按类型筛选
-				if (this.selectedTypes.length > 0) {
-					filtered = filtered.filter(article => this.selectedTypes.includes(article.type))
-				}
-				
-				// 按难度筛选
-				if (this.selectedLevels.length > 0) {
-					filtered = filtered.filter(article => this.selectedLevels.includes(article.difficulty))
-				}
-				
-				return filtered
-			},
-			
-			sortedArticles() {
-				const articles = [...this.filteredArticles]
-				
-				switch (this.selectedSort) {
-					case 'latest':
-						return articles.sort((a, b) => new Date(b.publishTime) - new Date(a.publishTime))
-					case 'popular':
-						return articles.sort((a, b) => b.likeCount - a.likeCount)
-					case 'views':
-						return articles.sort((a, b) => b.viewCount - a.viewCount)
-					default:
-						return articles
-				}
-			}
-		},
-		onLoad() {
-			this.loadArticles()
-		},
-		methods: {
-			// 加载文章列表
-			async loadArticles() {
-				this.loading = true
-				try {
-					// 模拟API调用
-					await this.simulateApiCall()
-					// 文章数据已在data中定义
-				} catch (error) {
-					console.error('加载文章失败:', error)
+				// 检查是否还有更多数据
+				if (this.page >= 5) { // 模拟最多5页数据
+					this.hasMore = false
 					uni.showToast({
-						title: '加载失败',
+						title: '没有更多内容了',
 						icon: 'none'
 					})
-				} finally {
-					this.loading = false
 				}
-			},
-			
-			// 模拟API调用
-			simulateApiCall() {
-				return new Promise((resolve) => {
-					setTimeout(resolve, 800)
+			} catch (error) {
+				console.error('加载更多失败:', error)
+				this.page-- // 回滚页码
+				uni.showToast({
+					title: '加载失败，请重试',
+					icon: 'none'
 				})
-			},
-			
-			// 选择分类
-			selectCategory(category) {
-				this.selectedCategory = category
-			},
-			
-			// 选择排序
-			selectSort(sort) {
-				this.selectedSort = sort
-			},
-			
-			// 跳转到搜索页面
-			goToSearch() {
-				uni.navigateTo({
-					url: '/pages/search/search'
-				})
-			},
-			
-			// 跳转到文章详情
-			goToArticleDetail(article) {
-				uni.navigateTo({
-					url: `/pages/article/detail?id=${article.id}`
-				})
-			},
-			
-			// 显示筛选弹窗
-			showFilterModal() {
-				this.showFilter = true
-			},
-			
-			// 隐藏筛选弹窗
-			hideFilterModal() {
-				this.showFilter = false
-			},
-			
-			// 切换文章类型
-			toggleType(type) {
-				const index = this.selectedTypes.indexOf(type)
-				if (index > -1) {
-					this.selectedTypes.splice(index, 1)
-				} else {
-					this.selectedTypes.push(type)
-				}
-			},
-			
-			// 切换难度等级
-			toggleLevel(level) {
-				const index = this.selectedLevels.indexOf(level)
-				if (index > -1) {
-					this.selectedLevels.splice(index, 1)
-				} else {
-					this.selectedLevels.push(level)
-				}
-			},
-			
-			// 重置筛选
-			resetFilter() {
-				this.selectedTypes = []
-				this.selectedLevels = []
-			},
-			
-			// 应用筛选
-			applyFilter() {
-				this.hideFilterModal()
-				// 筛选逻辑已在computed中处理
-			},
-			
-			// 加载更多
-			async loadMore() {
-				if (this.loadingMore || !this.hasMore) return
-				
-				this.loadingMore = true
-				this.page++
-				
-				try {
-					// 调用API加载更多文章
-					// const result = await getArticles({
-					//   page: this.page,
-					//   limit: this.limit,
-					//   category: this.selectedCategory
-					// });
-					
-					// 模拟API调用
-					await new Promise(resolve => setTimeout(resolve, 1000))
-					
-					// 模拟更多文章数据
-					const moreArticles = [
-						{
-							id: this.articleList.length + 1,
-							title: `加载的新文章 ${this.page}`,
-							summary: '这是通过加载更多功能获取的新文章内容...',
-							author: '系统',
-							publishTime: new Date().toISOString(),
-							readCount: Math.floor(Math.random() * 1000),
-							likeCount: Math.floor(Math.random() * 100),
-							coverImage: '/static/images/article-default.jpg'
-						}
-					]
-					
-					this.articleList.push(...moreArticles)
-					
-					// 检查是否还有更多数据
-					if (this.page >= 5) { // 模拟最多5页数据
-						this.hasMore = false
-						uni.showToast({
-							title: '没有更多内容了',
-							icon: 'none'
-						})
-					}
-				} catch (error) {
-					console.error('加载更多失败:', error)
-					this.page-- // 回滚页码
-					uni.showToast({
-						title: '加载失败，请重试',
-						icon: 'none'
-					})
-				} finally {
-					this.loadingMore = false
-				}
-			},
-			
-			// 获取分类颜色
-			getCategoryColor(category) {
-				const colorMap = {
-					frontend: '#4A90E2',
-					backend: '#52C41A',
-					mobile: '#FA8C16',
-					ai: '#722ED1',
-					devops: '#13C2C2',
-					design: '#EB2F96'
-				}
-				return colorMap[category] || '#999999'
-			},
-			
-			// 格式化日期
-			formatDate(dateString) {
-				const date = new Date(dateString)
-				const now = new Date()
-				const diff = now - date
-				const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-				
-				if (days === 0) {
-					return '今天'
-				} else if (days === 1) {
-					return '昨天'
-				} else if (days < 7) {
-					return `${days}天前`
-				} else {
-					return dateString
-				}
-			},
-			
-			// 格式化数字
-			formatNumber(num) {
-				if (num >= 1000) {
-					return (num / 1000).toFixed(1) + 'k'
-				}
-				return num.toString()
+			} finally {
+				this.loadingMore = false
 			}
+		},
+		
+		// 获取分类颜色
+		getCategoryColor(category) {
+			const colorMap = {
+				frontend: '#4A90E2',
+				backend: '#52C41A',
+				mobile: '#FA8C16',
+				ai: '#722ED1',
+				devops: '#13C2C2',
+				design: '#EB2F96'
+			}
+			return colorMap[category] || '#999999'
+		},
+		
+		// 格式化日期
+		formatDate(dateString) {
+			const date = new Date(dateString)
+			const now = new Date()
+			const diff = now - date
+			const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+			
+			if (days === 0) {
+				return '今天'
+			} else if (days === 1) {
+				return '昨天'
+			} else if (days < 7) {
+				return `${days}天前`
+			} else {
+				return dateString
+			}
+		},
+		
+		// 格式化数字
+		formatNumber(num) {
+			if (num >= 1000) {
+				return (num / 1000).toFixed(1) + 'k'
+			}
+			return num.toString()
 		}
 	}
+}
 </script>
 
 <style scoped>

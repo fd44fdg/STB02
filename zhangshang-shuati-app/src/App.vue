@@ -19,6 +19,7 @@
 </script>
 
 <style>
+	@import "@/styles/iconfont.css";
 	/*每个页面公共css */
 	/* 修复uni-app的image组件在H5平台上的样式问题 */
 	uni-image {
@@ -54,6 +55,7 @@
 	--success-bg: #e6f7e6;
 	--warning-bg: #fff7e6;
 	--danger-bg: #fff1f0;
+	--selection-bg: rgba(74, 144, 226, 0.10);
 	--accent-dark: #357ABD;
 	--warning-dark: #FFA500;
 	--card-bg-2: #f8fbff;
@@ -65,12 +67,12 @@
 
 /* 深色主题覆盖（更亮、更易读） */
 body.dark-mode, .dark-mode {
-	--bg-color: #0f172a; /* slate-900 */
-	--card-bg: #111827; /* slate-800 */
-	--text-primary: #e5e7eb; /* slate-200 */
-	--text-secondary: #cbd5e1; /* slate-300 */
+	--bg-color: #1e293b; /* slate-800，比原来的#0f172a更亮 */
+	--card-bg: #334155; /* slate-700，比原来的#111827更亮 */
+	--text-primary: #f8fafc; /* slate-50，比原来的#e5e7eb更亮 */
+	--text-secondary: #e2e8f0; /* slate-200，比原来的#cbd5e1更亮 */
 	--accent: #60a5fa; /* 蓝色保持 */
-	--border-color: #1f2937; /* slate-700 */
+	--border-color: #475569; /* slate-600，比原来的#1f2937更亮 */
 	--accent-active: #60a5fa;
 	--icon-accent: var(--accent);
 	--warning: #FFD86B;
@@ -78,16 +80,16 @@ body.dark-mode, .dark-mode {
 	--success: #34C759;
 	--shadow: 0 1rpx 6rpx rgba(0,0,0,0.2);
 	/* dark-mode variants for helpers */
-	--muted: #94a3b8; /* slate-400 */
-	--muted-border: #1f2937; /* 统一分隔线 */
+	--muted: #cbd5e1; /* slate-300，比原来的#94a3b8更亮 */
+	--muted-border: #475569; /* slate-600，比原来的#1f2937更亮 */
 	--success-bg: rgba(36, 78, 45, 0.16);
 	--warning-bg: rgba(255, 216, 107, 0.12);
 	--danger-bg: rgba(255, 107, 107, 0.10);
-	--card-bg-2: #0f1e35;
-	--card-bg-3: #12203c;
+	--card-bg-2: #334155; /* slate-700，比原来的#0f1e35更亮 */
+	--card-bg-3: #475569; /* slate-600，比原来的#12203c更亮 */
 	/* avatar overrides for dark mode */
-	--avatar-bg: #1f3b5a;
-	--avatar-fg: #e6eef8;
+	--avatar-bg: #3b82f6; /* blue-500，比原来的#1f3b5a更亮 */
+	--avatar-fg: #ffffff; /* 纯白色，比原来的#e6eef8更亮 */
 }
 
 /* 应用变量到常用元素 */

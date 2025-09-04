@@ -1,0 +1,29 @@
+/* CSS兼容性修复 */
+
+/* 修复-moz-appearance不支持问题 */
+select, input[type="checkbox"], input[type="radio"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* 修复mask相关属性不支持问题 */
+.mask-image {
+  -webkit-mask-image: var(--mask-image);
+  mask-image: var(--mask-image);
+}
+
+.mask-size {
+  -webkit-mask-size: var(--mask-size, contain);
+  mask-size: var(--mask-size, contain);
+}
+
+.mask-position {
+  -webkit-mask-position: var(--mask-position, center);
+  mask-position: var(--mask-position, center);
+}
+
+.mask-repeat {
+  -webkit-mask-repeat: var(--mask-repeat, no-repeat);
+  mask-repeat: var(--mask-repeat, no-repeat);
+}

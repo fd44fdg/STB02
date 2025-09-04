@@ -4,7 +4,7 @@
 		<view class="welcome-section">
 			<view class="welcome-card">
 				<view class="user-info">
-					<image class="avatar" :src="(userInfo && userInfo.avatar) || '/static/images/avatar-placeholder.png'" mode="aspectFill"></image>
+					<image class="avatar" :src="(userInfo && userInfo.avatar) || '/static/images/avatar-placeholder.png'" mode="aspectFill" :alt="(userInfo && userInfo.nickname) || '用户头像'"></image>
 					<view class="user-text">
 						<text class="greeting">{{ greeting }}</text>
 						<text class="username">{{ (userInfo && userInfo.nickname) || '未登录用户' }}</text>
@@ -22,7 +22,7 @@
 			<swiper class="swiper" circular :indicator-dots="true" :autoplay="true" :interval="3000" :duration="500">
 				<swiper-item v-for="(item, index) in banners" :key="index" @click="handleBannerClick(item)">
 					<view class="swiper-item">
-						<image :src="item.image_url" class="swiper-image" mode="aspectFill" />
+						<image :src="item.image_url" class="swiper-image" mode="aspectFill" :alt="item.title" />
 						<view class="swiper-title-wrapper">
 							<text class="swiper-title">{{ item.title }}</text>
 						</view>
@@ -221,7 +221,7 @@
 			startPractice() { uni.switchTab({ url: '/pages/practice/practice' }); },
 			startExam() { uni.switchTab({ url: '/pages/exam/exam' }); },
 			viewAllProgress() { uni.navigateTo({ url: '/pages/study-records/index' }); },
-			startKnowledgeStudy(item) { uni.navigateTo({ url: `/pages/practice/practice?category=${encodeURIComponent(item.title)}` }); },
+			startKnowledgeStudy(item) { uni.reLaunch({ url: `/pages/practice/practice?category=${encodeURIComponent(item.title)}` }); },
 			viewAllMistakes() { uni.navigateTo({ url: '/pages/wrong-questions/index' }); },
 			reviewMistake(mistake) { uni.navigateTo({ url: `/pages/question/detail?id=${mistake.id}&from=mistakes` }); },
 			startRecommendation(item) {

@@ -62,7 +62,7 @@
 					<view class="article-meta">
 						<view class="meta-left">
 							<view class="author-info">
-								<image class="author-avatar" :src="article.authorAvatar || '/static/default-avatar.png'" mode="aspectFill"></image>
+								<image class="author-avatar" :src="article.authorAvatar || '/static/default-avatar.png'" mode="aspectFill" :alt="article.author + '的头像'"></image>
 								<text class="author-name">{{article.author}}</text>
 							</view>
 							<view class="publish-info">

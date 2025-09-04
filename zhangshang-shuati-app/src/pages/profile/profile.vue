@@ -22,7 +22,7 @@
 						</view>
 					</view>
 					<button class="edit-btn" @click="goToEditProfile">
-						<uni-icons type="gear" size="20" color="#666"></uni-icons>
+						<uni-icons type="gear" size="20" color="var(--text-secondary)"></uni-icons>
 					</button>
 				</view>
 				
@@ -453,17 +453,17 @@ export default {
 <style scoped>
 	.profile-container {
 		padding: 20rpx;
-		background-color: #f5f5f5;
+		background-color: var(--bg-color, #f5f5f5);
 		min-height: 100vh;
 	}
 	
 	/* 用户信息卡片 */
 	.user-card {
-		background: white;
+		background: var(--card-bg, #ffffff);
 		border-radius: 20rpx;
 		padding: 30rpx;
 		margin-bottom: 20rpx;
-		box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.1);
+		box-shadow: var(--shadow, 0 2rpx 10rpx rgba(0,0,0,0.1));
 	}
 	
 	.login-prompt {
@@ -478,7 +478,7 @@ export default {
 		height: 120rpx;
 		border-radius: 50%;
 		margin-bottom: 20rpx;
-		background-color: #ffffff;
+		background-color: var(--card-bg, #ffffff);
 	}
 	
 	/* 确保uni-app的image组件在H5平台上正确显示图片 */
@@ -493,13 +493,13 @@ export default {
 	
 	.login-text {
 		font-size: 32rpx;
-		color: #666;
+		color: var(--text-secondary, #666);
 		margin-bottom: 20rpx;
 	}
 	
 	.login-btn {
 		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-		color: white;
+		color: #ffffff;
 		border: none;
 		border-radius: 50rpx;
 		padding: 20rpx 40rpx;
@@ -521,7 +521,7 @@ export default {
 		height: 120rpx;
 		border-radius: 50%;
 		margin-right: 30rpx;
-		background-color: #ffffff;
+		background-color: var(--card-bg, #ffffff);
 	}
 	
 	/* 确保uni-app的image组件在H5平台上正确显示图片 */
@@ -541,13 +541,13 @@ export default {
 	.nickname {
 		font-size: 36rpx;
 		font-weight: bold;
-		color: #333;
+		color: var(--text-primary, #333);
 		margin-bottom: 10rpx;
 	}
 	
 	.level {
 		font-size: 28rpx;
-		color: #666;
+		color: var(--text-secondary, #666);
 		margin-bottom: 15rpx;
 	}
 	
@@ -558,11 +558,11 @@ export default {
 	
 	.study-days, .total-questions {
 		font-size: 24rpx;
-		color: #999;
+		color: var(--text-secondary, #999);
 	}
 	
 	.edit-btn {
-		background: #f5f5f5;
+		background: var(--card-bg-2, #f5f5f5);
 		border: none;
 		border-radius: 50%;
 		width: 60rpx;
@@ -593,7 +593,7 @@ export default {
 	.check-in-title {
 		font-size: 32rpx;
 		font-weight: bold;
-		color: white;
+		color: #ffffff;
 		margin-bottom: 15rpx;
 	}
 	
@@ -613,7 +613,7 @@ export default {
 		border: 2rpx solid rgba(255, 255, 255, 0.3);
 		border-radius: 50rpx;
 		padding: 20rpx 30rpx;
-		color: white;
+		color: #ffffff;
 		font-size: 28rpx;
 		font-weight: bold;
 		transition: all 0.3s ease;
@@ -701,7 +701,7 @@ export default {
 	.section-title {
 		font-size: 32rpx;
 		font-weight: bold;
-		color: #333333;
+		color: var(--text-primary, #333333);
 		margin-bottom: 20rpx;
 	}
 	
@@ -712,12 +712,12 @@ export default {
 	}
 	
 	.data-item {
-		background-color: #ffffff;
+		background-color: var(--card-bg, #ffffff);
 		border-radius: 16rpx;
 		padding: 30rpx 20rpx;
 		width: 48%;
 		margin-bottom: 20rpx;
-		box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.1);
+		box-shadow: var(--shadow, 0 4rpx 12rpx rgba(0,0,0,0.1));
 		display: flex;
 		align-items: center;
 	}
@@ -733,7 +733,7 @@ export default {
 	
 	.data-title {
 		font-size: 24rpx;
-		color: #666666;
+		color: var(--text-secondary, #666666);
 		display: block;
 		margin-bottom: 8rpx;
 	}
@@ -741,7 +741,7 @@ export default {
 	.data-value {
 		font-size: 28rpx;
 		font-weight: bold;
-		color: #4A90E2;
+		color: var(--accent, #4A90E2);
 		display: block;
 	}
 	
@@ -751,9 +751,9 @@ export default {
 	}
 	
 	.menu-list {
-		background-color: #ffffff;
+		background-color: var(--card-bg, #ffffff);
 		border-radius: 16rpx;
-		box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.1);
+		box-shadow: var(--shadow, 0 4rpx 12rpx rgba(0,0,0,0.1));
 		overflow: hidden;
 	}
 	
@@ -761,7 +761,7 @@ export default {
 		display: flex;
 		align-items: center;
 		padding: 30rpx;
-		border-bottom: 1rpx solid #f0f0f0;
+		border-bottom: 1rpx solid var(--muted-border, #f0f0f0);
 	}
 	
 	.menu-item:last-child {
@@ -769,8 +769,8 @@ export default {
 	}
 	
 	.logout-item {
-		border: 2rpx solid #ff4757;
-		background: #fff5f5;
+		border: 2rpx solid var(--danger, #ff4757);
+		background: var(--danger-bg, #fff5f5);
 	}
 	
 	.menu-icon {
@@ -781,15 +781,15 @@ export default {
 	.menu-text {
 		flex: 1;
 		font-size: 28rpx;
-		color: #333333;
+		color: var(--text-primary, #333333);
 	}
 	
 	.logout-text {
-		color: #ff4757;
+		color: var(--danger, #ff4757);
 	}
 	
 	.menu-arrow {
 		font-size: 24rpx;
-		color: #999999;
+		color: var(--text-secondary, #999999);
 	}
 </style>

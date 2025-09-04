@@ -57,7 +57,7 @@ function applyTheme(isDark) {
         document.body.classList.add(THEME_CLASS)
         root && root.classList.add(THEME_CLASS)
         appRoot && appRoot.classList.add(THEME_CLASS)
-        setMetaThemeColor(getCssVar('--bg-color', '#0b1320'))
+        setMetaThemeColor(getCssVar('--bg-color', '#1e293b'))
       } else {
         document.body.classList.remove(THEME_CLASS)
         root && root.classList.remove(THEME_CLASS)
@@ -93,9 +93,9 @@ function applyTheme(isDark) {
 function syncNativeTheme(isDark) {
   if (typeof uni === 'undefined') return
 
-  const frontColor = getCssVar('--text-primary', isDark ? '#ffffff' : '#000000')
-  const backgroundColor = getCssVar('--bg-color', isDark ? '#071022' : '#ffffff')
-  const tabColor = getCssVar('--text-secondary', isDark ? '#9fb0c9' : '#8E8E93')
+  const frontColor = getCssVar('--text-primary', isDark ? '#f8fafc' : '#000000')
+  const backgroundColor = getCssVar('--bg-color', isDark ? '#1e293b' : '#ffffff')
+  const tabColor = getCssVar('--text-secondary', isDark ? '#e2e8f0' : '#8E8E93')
   const selectedColor = getCssVar('--accent-active', isDark ? '#60a5fa' : '#007AFF')
 
   // setNavigationBarColor: Android APP & 小程序端（有的端可能不支持）
