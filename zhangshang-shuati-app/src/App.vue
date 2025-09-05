@@ -49,6 +49,7 @@
 	--danger: #FF6B6B;
 	--success: #34C759;
 	--shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+	--active-opacity: .85;
 	/* helpers used across components */
 	--muted: #cccccc;
 	--muted-border: #e9ecef;

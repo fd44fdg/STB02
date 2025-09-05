@@ -1,8 +1,6 @@
 <template>
 	<view class="exam-container">
 		<view class="header">
-			<text class="title">模拟考试</text>
-			<text class="subtitle">检验你的学习成果</text>
 		</view>
 
 		<!-- 配置卡片 -->

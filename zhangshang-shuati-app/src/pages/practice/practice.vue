@@ -1,11 +1,6 @@
 <template>
 	<view class="practice-container">
-		<view class="header">
-			<text class="title">专项练习</text>
-			<text class="subtitle">请选择一个你想要深入练习的领域</text>
-		</view>
-
-		<!-- 练习设置 -->
+				<!-- 练习设置 -->
 		<view class="settings-card">
 			<view class="setting-item">
 				<view class="item-label">
@@ -59,6 +54,7 @@
 </template>
 
 <script>
+import HeaderBar from '@/components/HeaderBar.vue';
 // import ModernIcon from '@/components/ModernIcon.vue';
 import uniIcons from '@dcloudio/uni-ui/lib/uni-icons/uni-icons.vue';
 import { subjects } from '@/mock/subjects.js';
@@ -66,6 +62,7 @@ import { subjects } from '@/mock/subjects.js';
 export default {
 	name: "Practice",
 	components: {
+		HeaderBar,
 		uniIcons
 	},
 	data() {

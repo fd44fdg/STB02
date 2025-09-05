@@ -1,16 +1,7 @@
 <template>
   <view class="study-records-container">
 	<!-- 页面标题 -->
-	<view class="page-header">
-		<view class="header-left">
-			<view class="back-button" @tap="goBack">
-				<text class="iconfont icon-arrow-left back-icon"></text>
-			</view>
-		</view>
-		<view class="header-title">学习记录</view>
-		<view class="header-right"></view>
-	</view>
-	
+	<HeaderBar title="学习记录" @back="goBack" />
     <!-- 学习统计卡片 -->
     <view class="stats-card">
       <view class="stats-header">

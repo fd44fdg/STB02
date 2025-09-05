@@ -1,17 +1,14 @@
 <template>
   <view class="exam-session-container">
     <!-- 自定义头部：返回 + 标题 + 计时器 -->
-    <view class="session-header">
-      <view class="back-button" @click="handleExit">
-        <text class="back-icon">←</text>
-      </view>
-      <text class="session-title">{{ pageTitle || '模拟考试' }}</text>
-      <view class="timer">
-        <text class="timer-icon">⏱️</text>
-        <text class="timer-text">{{ formatTime(remainingTime) }}</text>
-      </view>
-    </view>
-
+    <HeaderBar :title="pageTitle || '模拟考试'" @back="handleExit" :sticky="true">
+      <template #right>
+        <view class="timer">
+          <text class="timer-icon">⏱️</text>
+          <text class="timer-text">{{ formatTime(remainingTime) }}</text>
+        </view>
+      </template>
+    </HeaderBar>
     <!-- 进度条 -->
     <view class="progress-bar-container" v-if="questions.length">
       <view class="progress-bar-bg">
@@ -185,7 +182,9 @@
 </template>
 
 <script>
+import HeaderBar from '@/components/HeaderBar.vue';
 export default {
+  components: { HeaderBar },
   data() {
     return {
       activeFilter: 'all',
@@ -496,6 +495,7 @@ export default {
 .back-icon { font-size: 34rpx; color:#333; }
 .session-title { font-size: 32rpx; font-weight: bold; color: #333; }
 .timer { margin-left: auto; display:flex; align-items:center; gap: 8rpx; }
+.timer-icon { font-size: 28rpx; color: var(--text-secondary,#666); }
 .timer-text { font-size: 28rpx; color: var(--text-primary,#333); }
 
 .progress-bar-container { padding: 20rpx 30rpx; display:flex; align-items:center; }

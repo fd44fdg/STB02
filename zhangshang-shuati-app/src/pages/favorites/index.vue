@@ -1,19 +1,13 @@
 <template>
   <view class="favorites-container">
 	<!-- 页面标题 -->
-	<view class="page-header">
-		<view class="header-left">
-			<view class="back-button" @tap="goBack">
-				<text class="iconfont icon-arrow-left back-icon"></text>
-			</view>
-		</view>
-		<view class="header-title">我的收藏</view>
-		<view class="header-right">
+	<HeaderBar title="我的收藏" @back="goBack">
+		<template #right>
 			<view class="filter-toggle" @tap="toggleFilterBar">
 				<text class="iconfont icon-filter"></text>
 			</view>
-		</view>
-	</view>
+		</template>
+	</HeaderBar>
 	
     <!-- 顶部筛选栏 -->
     <view class="filter-bar" v-show="showFilters">
@@ -103,9 +97,11 @@
 </template>
 
 <script>
+import HeaderBar from '@/components/HeaderBar.vue';
 import { getFavorites, removeFavorite as apiRemoveFavorite } from '@/api/study';
 import config from '@/config';
 export default {
+  components: { HeaderBar },
   data() {
     return {
       favoritesList: [],
