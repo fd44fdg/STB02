@@ -79,7 +79,8 @@
     "flyio": "0.6.14",
     "regenerator-runtime": "^0.14.1",
     "vue": ">= 2.6.14 < 2.7",
-    "vuex": "3.6.2"
+    "vuex": "3.6.2",
+    "@dcloudio/uni-ui": "^1.4.28"
   },
   "devDependencies": {
     "@dcloudio/types": "^3.3.2",

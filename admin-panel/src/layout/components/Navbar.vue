@@ -51,7 +51,7 @@ export default {
     const router = useRouter()
 
     const sidebar = computed(() => store.state.app.sidebar)
-    const avatar = computed(() => store.state.user.avatar || '/static/default-avatar.svg')
+    const avatar = computed(() => store.state.user.avatar || '/default-avatar.svg')
 
     const toggleSideBar = () => {
       store.dispatch('app/toggleSideBar')

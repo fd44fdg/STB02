@@ -25,9 +25,9 @@ const useSqlite = process.env.USE_SQLITE === 'true';
 
 const dbConfig = {
   sqlite: {
-    dialect: 'sqlite',
+    dialect: 'sqlite3',
     storage: path.join(__dirname, '../database/local.db'),
-    client: 'sqlite'
+    client: 'sqlite3'
   },
   mysql: {
     host: process.env.DB_HOST || 'localhost',
@@ -70,7 +70,12 @@ module.exports = {
       process.env.CORS_ORIGINS.split(',').map(origin => origin.trim()) :
       (process.env.NODE_ENV === 'production' ?
         [] : // No default origins in production - must be explicitly set
-        ['http://localhost:8080', 'http://localhost:3000', 'http://localhost:8081', 'http://localhost:8083', 'http://localhost:8084', 'http://localhost:8085', 'http://localhost:8086']
+        [
+          'http://localhost:8080','http://127.0.0.1:8080',
+          'http://localhost:3000','http://127.0.0.1:3000', 'http://localhost:3001','http://127.0.0.1:3001',
+          'http://localhost:8081','http://localhost:8083','http://localhost:8084','http://localhost:8085','http://localhost:8086',
+          'http://localhost:8090','http://127.0.0.1:8090'
+        ]
       ),
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

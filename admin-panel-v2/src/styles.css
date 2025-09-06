@@ -1,0 +1,105 @@
+/* Apple-like glassmorphism baseline */
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.10);
+  --glass-border: rgba(255, 255, 255, 0.25);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  --glass-radius: 16px;
+  --glass-blur: saturate(150%) blur(16px);
+}
+
+html, body, #app { height: 100%; }
+body {
+  margin: 0;
+  background:
+    radial-gradient(1400px 800px at 15% 15%, rgba(90,200,250,.15), transparent),
+    radial-gradient(1000px 600px at 85% 25%, rgba(15,94,199,.25), transparent),
+    radial-gradient(900px 500px at 50% 90%, rgba(58,134,255,.18), transparent),
+    linear-gradient(135deg, #0b1220 0%, #101a30 60%, #0a274a 100%);
+  color: #E6ECF5;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ========== Global Visibility Fix for Inputs / Selects over glass ========== */
+/* Root text color already light (#E6ECF5); inside light glass we need darker foreground */
+.glass-panel .n-input, .glass-panel .n-base-selection {
+  --n-text-color: #1f1f1f;
+  --n-text-color-disabled: rgba(0,0,0,0.35);
+  --n-placeholder-color: rgba(0,0,0,0.45);
+  --n-border-color: rgba(0,0,0,0.15);
+}
+
+/* Force actual input / selection label text to render (override any gradient transparent styles) */
+.glass-panel :is(.n-input__input-el, .n-base-selection-label, .n-base-selection-label__render-label, .n-base-selection-input) {
+  color: #1f1f1f !important;
+  -webkit-text-fill-color: #1f1f1f !important;
+  background: none !important;
+  background-clip: border-box !important;
+  -webkit-background-clip: border-box !important;
+}
+
+/* Highest priority safeguard: if still transparent, force via attribute style duplication */
+body .glass-panel .n-input input,
+body .glass-panel .n-base-selection-label,
+body .glass-panel .n-base-selection-input {
+  color:#1f1f1f !important;
+  -webkit-text-fill-color:#1f1f1f !important;
+}
+
+/* In case internal sets color:inherit then parent color is light, set parent container utility */
+.glass-panel.filter-bar { color:#1f1f1f !important; }
+
+.glass-panel :is(.n-input__placeholder, .n-base-selection-placeholder) {
+  color: rgba(0,0,0,0.45) !important;
+  -webkit-text-fill-color: rgba(0,0,0,0.45) !important;
+}
+
+/* Dropdown menu items ensure readability */
+.n-base-select-menu .n-base-select-option__content {
+  color: #1f1f1f;
+}
+
+/* When dark theme background blending makes text faint, enforce contrast */
+@media (prefers-color-scheme: dark) {
+  .glass-panel .n-input, .glass-panel .n-base-selection {
+    --n-border-color: rgba(255,255,255,0.25);
+  }
+}
+
+.glass-panel {
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--glass-radius);
+  box-shadow: var(--glass-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(120deg, rgba(255,255,255,0.25), rgba(255,255,255,0) 40%),
+    radial-gradient(circle at 80% 20%, rgba(90,200,250,0.25), transparent 60%);
+  mix-blend-mode: overlay;
+}
+
+.page-container {
+  max-width: 1200px;
+  margin: 32px auto;
+  padding: 24px;
+}
+
+/* 通用滚动优化 */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+::-webkit-scrollbar-thumb { background: linear-gradient(180deg,#3A86FF,#0F5EC7); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg,#5AA2FF,#1370E8); }
+
+.fade-slide-enter-active, .fade-slide-leave-active { transition: all .28s cubic-bezier(.4,0,.2,1); }
+.fade-slide-enter-from { opacity:0; transform: translateY(6px); }
+.fade-slide-leave-to { opacity:0; transform: translateY(-6px); }

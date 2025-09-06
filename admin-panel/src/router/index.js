@@ -9,6 +9,20 @@ const routes = [
     hidden: true
   },
   {
+    path: '/profile',
+    component: Layout,
+    redirect: '/profile/index',
+    hidden: true,
+    children: [
+      {
+        path: 'index',
+        name: 'Profile',
+        component: () => import('@/views/profile/index.vue'),
+        meta: { title: '个人中心', icon: 'user' }
+      }
+    ]
+  },
+  {
     path: '/',
     component: Layout,
     redirect: '/dashboard',
@@ -162,15 +176,37 @@ const routes = [
   }
 ]
 
+import { getToken } from '@/utils/auth' // 引入getToken
+
 const router = createRouter({
   history: createWebHistory(),
   routes
 })
 
 // 路由守卫
-router.beforeEach((to, from, next) => {
-  // 这里可以添加登录验证逻辑
-  next()
+const whiteList = ['/login'] // 白名单，无需登录即可访问
+
+router.beforeEach(async(to, from, next) => {
+  const hasToken = getToken()
+
+  if (hasToken) {
+    if (to.path === '/login') {
+      // 如果已登录，重定向到首页
+      next({ path: '/' })
+    } else {
+      // 正常访问
+      next()
+    }
+  } else {
+    // 没有token
+    if (whiteList.indexOf(to.path) !== -1) {
+      // 在白名单内，直接放行
+      next()
+    } else {
+      // 其他无权限页面则重定向到登录页
+      next(`/login?redirect=${to.path}`)
+    }
+  }
 })
 
 export default router

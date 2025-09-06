@@ -49,7 +49,7 @@ export default {
 
     const pathCompile = (path) => {
       const { params } = route
-      const toPath = compile(path)
+      const toPath = pathToRegexp.compile(path)
       return toPath(params)
     }
 

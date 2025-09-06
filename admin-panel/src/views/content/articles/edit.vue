@@ -437,7 +437,7 @@ export default {
           title: 'Vue 3.0 新特性详解',
           summary: '本文详细介绍了Vue 3.0的新特性和改进，包括Composition API、性能优化、TypeScript支持等方面的内容。',
           content: '<h2>Vue 3.0 简介</h2><p>Vue 3.0 是 Vue.js 的最新主要版本，带来了许多激动人心的新特性和改进...</p><h3>主要特性</h3><ul><li>Composition API</li><li>更好的 TypeScript 支持</li><li>性能优化</li></ul>',
-          cover_image: 'https://via.placeholder.com/800x450',
+          cover_image: '/static/default-avatar.svg',
           category_id: 1,
           author: '张三',
           status: 'published',

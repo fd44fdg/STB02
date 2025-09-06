@@ -193,6 +193,8 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import Pagination from '@/components/Pagination/index.vue'
 import waves from '@/directive/waves'
 
+import { fetchAdminBanners, createAdminBanner, updateAdminBanner, deleteAdminBanner } from '@/api/banner'
+
 export default {
   name: 'BannerManagement',
   components: { Pagination },
@@ -234,65 +236,53 @@ export default {
       sort_order: [{ required: true, message: '排序是必填项', trigger: 'blur' }]
     }
     
-    // 模拟数据
-    const mockData = [
-      {
-        id: 1,
-        title: '欢迎使用掌上刷题宝',
-        image_url: 'https://via.placeholder.com/800x400/409EFF/ffffff?text=Banner1',
-        link_url: '/dashboard',
-        description: '最好用的在线刷题平台',
-        sort_order: 1,
-        status: 1,
-        created_at: '2024-01-15 10:30:00'
-      },
-      {
-        id: 2,
-        title: '新年特惠活动',
-        image_url: 'https://via.placeholder.com/800x400/67C23A/ffffff?text=Banner2',
-        link_url: '/promotion',
-        description: '新年期间享受特惠价格',
-        sort_order: 2,
-        status: 1,
-        created_at: '2024-01-14 16:20:00'
-      },
-      {
-        id: 3,
-        title: '题库更新通知',
-        image_url: 'https://via.placeholder.com/800x400/E6A23C/ffffff?text=Banner3',
-        link_url: '/questions',
-        description: '新增1000道精选题目',
-        sort_order: 3,
-        status: 0,
-        created_at: '2024-01-13 14:15:00'
-      }
-    ]
-    
-    const getList = () => {
+    // 从后端加载列表
+    const getList = async () => {
       listLoading.value = true
-      setTimeout(() => {
-        let filteredData = mockData
+      try {
+        const res = await fetchAdminBanners()
+        let data = Array.isArray(res.data) ? res.data : []
+        // 映射后端字段到前端展示字段
+        data = data.map(item => ({
+          id: item.id,
+          title: item.title,
+          image_url: item.image_url,
+          link_url: item.link_url || '',
+          description: item.description || '',
+          sort_order: item.sort_order || 0,
+          status: item.is_visible ? 1 : 0,
+          created_at: item.created_at || item.updated_at
+        }))
+
+        // 过滤
         if (listQuery.keyword) {
-          filteredData = filteredData.filter(item => 
-            item.title.toLowerCase().includes(listQuery.keyword.toLowerCase())
-          )
+          const kw = listQuery.keyword.toLowerCase()
+          data = data.filter(i => (i.title || '').toLowerCase().includes(kw))
         }
         if (listQuery.status !== '') {
-          filteredData = filteredData.filter(item => 
-            item.status === parseInt(listQuery.status)
-          )
+          data = data.filter(i => i.status === parseInt(listQuery.status))
         }
-        list.value = filteredData
-        total.value = filteredData.length
+
+        // 本地分页
+        total.value = data.length
+        const start = (listQuery.page - 1) * listQuery.limit
+        const end = start + listQuery.limit
+        list.value = data.slice(start, end)
+      } catch (e) {
+        console.error('加载轮播图失败:', e)
+        ElMessage({ type: 'error', message: '加载轮播图失败' })
+        list.value = []
+        total.value = 0
+      } finally {
         listLoading.value = false
-      }, 500)
+      }
     }
-    
+
     const handleFilter = () => {
       listQuery.page = 1
       getList()
     }
-    
+
     const resetTemp = () => {
       temp.id = undefined
       temp.title = ''
@@ -302,82 +292,108 @@ export default {
       temp.sort_order = 0
       temp.status = 1
     }
-    
+
     const handleCreate = () => {
       resetTemp()
       dialogStatus.value = 'create'
       dialogFormVisible.value = true
     }
-    
+
     const createData = () => {
-      dataFormRef.value.validate((valid) => {
+      dataFormRef.value.validate(async (valid) => {
         if (valid) {
-          const newItem = {
-            ...temp,
-            id: Date.now(),
-            created_at: new Date().toLocaleString()
+          try {
+            const payload = {
+              title: temp.title,
+              image_url: temp.image_url,
+              link_url: temp.link_url || null,
+              sort_order: temp.sort_order || 0,
+              is_visible: temp.status === 1
+            }
+            await createAdminBanner(payload)
+            dialogFormVisible.value = false
+            ElMessage({ message: '创建成功', type: 'success' })
+            getList()
+          } catch (e) {
+            console.error('创建失败', e)
+            ElMessage({ message: '创建失败', type: 'error' })
           }
-          mockData.unshift(newItem)
-          list.value.unshift(newItem)
-          dialogFormVisible.value = false
-          ElMessage({
-            message: '创建成功',
-            type: 'success'
-          })
         }
       })
     }
-    
+
     const handleUpdate = (row) => {
       Object.assign(temp, row)
       dialogStatus.value = 'update'
       dialogFormVisible.value = true
     }
-    
+
     const updateData = () => {
-      dataFormRef.value.validate((valid) => {
+      dataFormRef.value.validate(async (valid) => {
         if (valid) {
-          const index = list.value.findIndex(v => v.id === temp.id)
-          list.value.splice(index, 1, { ...temp })
-          dialogFormVisible.value = false
-          ElMessage({
-            message: '更新成功',
-            type: 'success'
-          })
+          try {
+            const payload = {
+              title: temp.title,
+              image_url: temp.image_url,
+              link_url: temp.link_url || null,
+              sort_order: temp.sort_order || 0,
+              is_visible: temp.status === 1
+            }
+            await updateAdminBanner(temp.id, payload)
+            dialogFormVisible.value = false
+            ElMessage({ message: '更新成功', type: 'success' })
+            getList()
+          } catch (e) {
+            console.error('更新失败', e)
+            ElMessage({ message: '更新失败', type: 'error' })
+          }
         }
       })
     }
-    
+
     const handleDelete = (row, index) => {
       ElMessageBox.confirm('此操作将永久删除该轮播图, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(() => {
-        list.value.splice(index, 1)
-        ElMessage({
-          type: 'success',
-          message: '删除成功!'
-        })
+      }).then(async () => {
+        try {
+          await deleteAdminBanner(row.id)
+          ElMessage({ type: 'success', message: '删除成功!' })
+          getList()
+        } catch (e) {
+          console.error('删除失败', e)
+          ElMessage({ type: 'error', message: '删除失败' })
+        }
       })
     }
-    
-    const handleModifyStatus = (row, status) => {
-      row.status = status
-      ElMessage({
-        message: '状态修改成功',
-        type: 'success'
-      })
+
+    const handleModifyStatus = async (row, status) => {
+      try {
+        const payload = {
+          title: row.title,
+          image_url: row.image_url,
+          link_url: row.link_url || null,
+          sort_order: row.sort_order || 0,
+          is_visible: status === 1
+        }
+        await updateAdminBanner(row.id, payload)
+        ElMessage({ message: '状态修改成功', type: 'success' })
+        getList()
+      } catch (e) {
+        console.error('状态修改失败', e)
+        ElMessage({ message: '状态修改失败', type: 'error' })
+      }
     }
-    
+
     const formatDate = (dateString) => {
       return new Date(dateString).toLocaleString()
     }
-    
+
     onMounted(() => {
       getList()
     })
-    
+
     return {
       tableKey,
       list,

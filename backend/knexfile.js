@@ -9,8 +9,8 @@ const BASE_PATH = path.join(__dirname, 'database');
 
 module.exports = {
   development: {
-    client: config.database.client || (config.database.dialect === 'mysql' ? 'mysql2' : 'sqlite'),
-    connection: config.database.dialect === 'sqlite' 
+    client: config.database.client || (config.database.dialect === 'mysql' ? 'mysql2' : 'sqlite3'),
+    connection: config.database.dialect === 'sqlite3' 
       ? { filename: config.database.storage }
       : {
         host: config.database.host,
@@ -35,7 +35,7 @@ module.exports = {
     if (process.env.USE_REAL_DB_FOR_TEST === 'true') {
       return {
         client: config.database.client || (config.database.dialect === 'mysql' ? 'mysql2' : 'sqlite3'),
-        connection: config.database.dialect === 'sqlite' ? { filename: config.database.storage } : {
+        connection: config.database.dialect === 'sqlite3' ? { filename: config.database.storage } : {
           host: config.database.host,
           port: config.database.port,
           user: config.database.user,

@@ -238,7 +238,7 @@ export default {
           {
             id: 2,
             title: '侧边栏广告',
-            image: 'https://via.placeholder.com/200x300',
+            image: '/static/default-avatar.svg',
             link: 'https://example.com',
             position: 'sidebar',
             sort: 2,

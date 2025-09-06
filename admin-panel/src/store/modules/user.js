@@ -29,10 +29,28 @@ const actions = {
   // user login
   async login({ commit }, userInfo) {
     const { username, password } = userInfo
-    const response = await login({ username: username.trim(), password: password })
-    const { token } = response
-    commit('SET_TOKEN', token)
-    setToken(token)
+    return new Promise(async (resolve, reject) => {
+      // MOCK LOGIN: If username is 'admin' and password is 'admin123', bypass API call
+      if (username.trim() === 'admin' && password === 'admin123') {
+        console.warn('！！！Using Mock Login！！！')
+        const mockToken = 'mock-token-' + Date.now()
+        commit('SET_TOKEN', mockToken)
+        setToken(mockToken)
+        resolve()
+        return
+      }
+
+      // Real API call
+      try {
+        const response = await login({ username: username.trim(), password: password })
+        const { token } = response
+        commit('SET_TOKEN', token)
+        setToken(token)
+        resolve()
+      } catch (error) {
+        reject(error)
+      }
+    })
   },
 
   // get user info

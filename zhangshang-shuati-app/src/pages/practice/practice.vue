@@ -56,14 +56,12 @@
 <script>
 import HeaderBar from '@/components/HeaderBar.vue';
 // import ModernIcon from '@/components/ModernIcon.vue';
-import uniIcons from '@dcloudio/uni-ui/lib/uni-icons/uni-icons.vue';
 import { subjects } from '@/mock/subjects.js';
 
 export default {
 	name: "Practice",
 	components: {
-		HeaderBar,
-		uniIcons
+		HeaderBar
 	},
 	data() {
 		return {

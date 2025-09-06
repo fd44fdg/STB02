@@ -36,6 +36,7 @@ const statsRoutes = require('./routes/stats');
 const articleRoutes = require('./routes/article');
 const examRoutes = require('./routes/exam');
 const bannerRoutes = require('./routes/banner');
+const uploadRoutes = require('./routes/upload');
 
 const app = express();
 const PORT = config.ports.backend;
@@ -86,6 +87,11 @@ app.use(cors({
 
 // Request tracking for monitoring
 app.use(requestTracker);
+
+// Lightweight health check that never touches DB (for debugging hanging health)
+app.get('/healthz', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
 
 // Health check endpoint (before rate limiting)
 app.use(healthCheckMiddleware);
@@ -181,6 +187,7 @@ if (checkinRoutes) {
 app.use(`${apiPrefix}/articles`, articleRoutes);
 app.use(`${apiPrefix}/exams`, examRoutes);
 app.use(`${apiPrefix}/banners`, bannerRoutes);
+app.use(`${apiPrefix}/upload`, uploadRoutes);
 
 // ========================================
 // Root Endpoint

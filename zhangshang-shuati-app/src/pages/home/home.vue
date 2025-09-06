@@ -203,11 +203,16 @@
 					if (response && response.success && response.data && response.data.length > 0) {
 						this.banners = response.data;
 					} else {
-						this.banners = mockBanners;
+						if (process.env.VUE_APP_USE_MOCK_BANNERS === 'true') { this.banners = mockBanners; } else { this.banners = []; }
+
 					}
 				} catch (error) {
-					console.error('加载轮播图失败，启用模拟数据:', error);
-					this.banners = mockBanners;
+					console.error('加载轮播图失败:', error);
+					if (process.env.VUE_APP_USE_MOCK_BANNERS === 'true') { this.banners = mockBanners; } else { this.banners = []; }
+				}
+				// 确保至少有一个默认轮播图，避免组件消失
+				if (!this.banners || this.banners.length === 0) {
+					this.banners = [{ id: 0, title: '欢迎使用掌上刷题宝', image_url: '/static/images/avatar-placeholder.svg', link_url: '' }];
 				}
 			},
 			async loadUserStats() { /* ... */ },

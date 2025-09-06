@@ -10,7 +10,7 @@
     "dev": "npm run serve"
   },
   "dependencies": {
-    "@shared/api": "workspace:*",
+    "@shared/api": "file:../shared/api",
     "@element-plus/icons-vue": "^2.1.0",
     "axios": "^1.5.0",
     "dayjs": "^1.11.9",
