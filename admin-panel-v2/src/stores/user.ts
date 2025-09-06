@@ -101,6 +101,11 @@ export const useUserStore = defineStore('user', {
       this.token = null
       this.profile = null
       localStorage.removeItem('token')
+    },
+    updateProfileLocal(partial: Partial<UserProfile>) {
+      if (!this.profile) return
+      this.profile = { ...this.profile, ...partial }
+      // 可扩展为调用后端 /user/profile 更新，这里仅本地更新
     }
   }
 })

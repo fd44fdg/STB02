@@ -101,7 +101,7 @@ function onUserSelect(key: string) {
     userStore.logout()
     router.replace('/login')
   } else if (key === 'profile') {
-    // 预留: 跳转个人中心
+  router.push('/profile')
   }
 }
 </script>

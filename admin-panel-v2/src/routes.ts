@@ -3,6 +3,7 @@ import Login from './views/Login.vue'
 import AppLayout from './layouts/AppLayout.vue'
 import Dashboard from './views/Dashboard.vue'
 import Banners from './views/banners/Banners.vue'
+import Profile from './views/profile/Profile.vue'
 // 懒加载其它业务
 const QuestionsList = () => import('./views/questions/QuestionsList.vue')
 const KnowledgeCategories = () => import('./views/knowledge/KnowledgeCategories.vue')
@@ -34,7 +35,8 @@ const routes: RouteRecordRaw[] = [
       { path: 'knowledge/categories', name: 'KnowledgeCategories', component: KnowledgeCategories, meta: { title: '知识点分类', requiresAuth: true, roles: ['admin','editor'], icon: 'Book' } },
   { path: 'navigation/categories', name: 'NavigationCategories', component: NavigationCategories, meta: { title: '导航分类', requiresAuth: true, roles: ['admin'], icon: 'Apps' } },
   { path: 'users', name: 'Users', component: UsersList, meta: { title: '用户管理', requiresAuth: true, roles: ['admin'], icon: 'People' } },
-  { path: 'system/settings', name: 'SystemSettings', component: SystemSettings, meta: { title: '系统设置', requiresAuth: true, roles: ['admin'], icon: 'Settings' } }
+  { path: 'system/settings', name: 'SystemSettings', component: SystemSettings, meta: { title: '系统设置', requiresAuth: true, roles: ['admin'], icon: 'Settings' } },
+  { path: 'profile', name: 'Profile', component: Profile, meta: { title: '个人信息', requiresAuth: true, roles: ['admin','editor'], hidden: true } }
     ]
   },
   { path: '/:pathMatch(.*)*', redirect: '/' }
