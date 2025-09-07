@@ -1,16 +1,18 @@
 <script>
 	import theme from './utils/theme'
+	// 已移除全局 QueryGuard mixin（问题定位结束，回归最小运行时）
 
 	export default {
 		onLaunch: function() {
 			console.log('App Launch')
 			// 在应用启动时应用主题
-			theme.applyThemeFromSettings()
+				// 临时禁用以定位页面未挂载问题
+				// theme.applyThemeFromSettings()
 		},
 		onShow: function() {
 			console.log('App Show')
 			// 每次返回前台也确保主题同步
-			theme.applyThemeFromSettings()
+				// theme.applyThemeFromSettings()
 		},
 		onHide: function() {
 			console.log('App Hide')
@@ -20,6 +22,10 @@
 
 <style>
 	@import "@/styles/iconfont.css";
+	/* #ifdef MP-WEIXIN */
+	@import "@/styles/mp-theme-fallback.css";
+	@import "@/styles/mp-variables-fallback.css";
+	/* #endif */
 	/*每个页面公共css */
 	/* 修复uni-app的image组件在H5平台上的样式问题 */
 	uni-image {

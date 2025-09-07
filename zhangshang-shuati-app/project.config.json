@@ -38,8 +38,8 @@
     "enableEngineNative": false,
     "useIsolateContext": false,
     "userConfirmedBundleSwitch": false,
-    "packNpmManually": false,
-    "packNpmRelationList": [],
+  "packNpmManually": true,
+  "packNpmRelationList": [],
     "minifyWXSS": true,
     "disableUseStrict": false,
     "minifyWXML": true,
@@ -47,6 +47,7 @@
     "useCompilerPlugins": false
   },
   "compileType": "miniprogram",
+  "miniprogramRoot": "dist/dev/mp-weixin/",
   "libVersion": "2.19.4",
   "appid": "wx4ad0f81802785baa",
   "projectname": "zhangshang-shuati-app",

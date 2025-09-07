@@ -56,4 +56,26 @@ router.post('/client-error', asyncHandler(async (req, res) => {
     sendSuccess(res, { received: true });
 }));
 
+/**
+ * @route GET /system/config
+ * @description Get runtime config for H5
+ * @access Public
+ */
+router.get('/config', asyncHandler(async (req, res) => {
+  const cfg = await systemService.getRuntimeConfig();
+  sendSuccess(res, cfg);
+}));
+
+/**
+ * @route POST /system/config
+ * @description Update runtime config (admin only)
+ * @access Private (admin)
+ */
+const { verifyAccess, requireRoles } = require('../middleware/authV2');
+router.post('/config', verifyAccess, requireRoles('admin'), asyncHandler(async (req, res) => {
+  const ok = await systemService.setRuntimeConfig(req.body || {});
+  if (ok) return sendSuccess(res, { saved: true })
+  res.status(500).json({ success:false, message:'保存失败' })
+}));
+
 module.exports = router; 

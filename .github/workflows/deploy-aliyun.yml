@@ -1,0 +1,78 @@
+name: Deploy to Aliyun ECS (stb02.top)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+      - 'admin-panel/**'
+      - 'admin-panel-v2/**'
+      - 'zhangshang-shuati-app/**'
+      - 'nginx/**'
+      - 'docker-compose.production.yml'
+      - '.github/workflows/deploy-aliyun.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Upload project to server via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.ALIYUN_HOST }}
+          username: ${{ secrets.ALIYUN_USER }}
+          key: ${{ secrets.ALIYUN_SSH_KEY }}
+          port: ${{ secrets.ALIYUN_PORT || 22 }}
+          source: .
+          target: /opt/shuati
+          overwrite: true
+          strip_components: 0
+          rm: false
+          exclude: |
+            **/node_modules/**
+            **/.git/**
+            **/.github/**
+            **/.env*
+
+      - name: Remote deploy over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.ALIYUN_HOST }}
+          username: ${{ secrets.ALIYUN_USER }}
+          key: ${{ secrets.ALIYUN_SSH_KEY }}
+          port: ${{ secrets.ALIYUN_PORT || 22 }}
+          script_stop: true
+          script: |
+            set -e
+            echo '==> Ensure docker is installed'
+            if ! command -v docker >/dev/null 2>&1; then
+              curl -fsSL https://get.docker.com | sh
+              sudo usermod -aG docker $USER || true
+            fi
+            echo '==> Create runtime dirs'
+            sudo mkdir -p /opt/shuati && sudo chown -R $USER:$USER /opt/shuati
+            cd /opt/shuati
+            echo '==> Write .env.production if secrets provided'
+            if [ ! -f .env.production ]; then
+              cat > .env.production <<EOF
+PORT=${{ secrets.PORT || '3000' }}
+ADMIN_PORT=${{ secrets.ADMIN_PORT || '8080' }}
+MOBILE_PORT=${{ secrets.MOBILE_PORT || '8081' }}
+DB_HOST=db
+DB_PORT=3306
+DB_USER=${{ secrets.DB_USER || 'app_user' }}
+DB_PASSWORD=${{ secrets.DB_PASSWORD || 'ChangeMe123!Strong' }}
+DB_NAME=${{ secrets.DB_NAME || 'zhangshang_shuati' }}
+JWT_SECRET=${{ secrets.JWT_SECRET || 'PLEASE_ROTATE_THIS_SECRET_AFTER_FIRST_DEPLOY' }}
+CORS_ORIGINS=https://stb02.top,https://www.stb02.top
+EOF
+            fi
+            echo '==> Bring up stack'
+            docker compose -f docker-compose.production.yml up -d --build
+            echo '==> Stack is up. Health check:'
+            sleep 10
+            curl -fsS http://localhost:${{ secrets.PORT || '3000' }}/api/v1/health || true

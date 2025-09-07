@@ -1,5 +1,5 @@
 <template>
-	<view class="exam-container">
+	<view class="exam-container mp-bg mp-semantic">
 		<view class="header">
 		</view>
 
@@ -148,6 +148,13 @@ export default {
 	min-height: 100vh;
 	padding: 40rpx 30rpx;
 }
+/* #ifdef MP-WEIXIN */
+.exam-container { background:#f5f5f5; }
+.config-card, .custom-picker-container { background:#ffffff; }
+.item-label text, .picker-value text, .picker-option, .duration-text { color:#303133; }
+.picker-option.selected { background:#4A90E2; color:#ffffff; }
+.start-exam-btn { background:#4A90E2; color:#ffffff; }
+/* #endif */
 
 .header {
 	margin-bottom: 40rpx;

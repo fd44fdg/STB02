@@ -1,0 +1,25 @@
+/* Auto fallback mapping: simulate CSS variables for mp-weixin (no native custom properties) */
+/* Attach semantic classes once at root container (e.g., on each page root add class mp-semantic) */
+.mp-semantic {
+  background-color:#f5f5f5; /* var(--bg-color) */
+  color:#333333; /* var(--text-primary) */
+}
+.mp-semantic .card,
+.mp-semantic .today-stats,
+.mp-semantic .quick-start,
+.mp-semantic .knowledge-progress,
+.mp-semantic .recent-mistakes,
+.mp-semantic .recommendations,
+.mp-semantic .action-btn,
+.mp-semantic .recommendation-item {
+  background:#ffffff; /* var(--card-bg) */
+  color:#333333;
+  border-color:#e9ecef;
+}
+.mp-semantic .text-secondary { color:#666666; }
+.mp-semantic .danger-bg { background:#fff7f7; }
+.mp-semantic .accent { color:#4A90E2; }
+.mp-semantic .accent-bg { background:#4A90E2; color:#ffffff; }
+.mp-semantic .muted-border { border-color:#e9ecef; }
+.mp-semantic .progress-bar { background:#e9ecef; }
+.mp-semantic .progress-fill { background:linear-gradient(90deg,#4A90E2 0%, #357ABD 100%); }

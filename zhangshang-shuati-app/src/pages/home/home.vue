@@ -1,5 +1,5 @@
 <template>
-	<view class="home-container">
+	<view class="home-container mp-bg mp-semantic">
 		<!-- 用户欢迎区域 -->
 		<view class="welcome-section">
 			<view class="welcome-card">
@@ -148,8 +148,8 @@
 			CheckIn
 		},
 		data() {
-			return {
-				banners: [],
+				return {
+					banners: [],
 				userStats: { continuousDays: 0 },
 				todayStats: { questionsCount: 0, correctRate: 0, studyTime: '0分钟' },
 				knowledgeProgress: [],
@@ -181,8 +181,8 @@
 			}
 		},
 		onLoad() {
-			this.loadAllData();
-		},
+				this.loadAllData();
+			},
 		methods: {
 			async loadAllData() {
 				this.loadBanners();
@@ -252,6 +252,13 @@
 
 <style scoped>
 	.home-container { background-color: var(--bg-color, #f5f5f5); min-height: 100vh; padding-bottom: 20rpx; }
+	/* #ifdef MP-WEIXIN */
+	.home-container { background:#f5f5f5; }
+	.today-stats, .quick-start, .knowledge-progress, .recent-mistakes, .recommendations, .action-btn, .recommendation-item { background:#ffffff; }
+	.recommendation-item { border:1rpx solid #e9ecef; }
+	.section-title, .btn-title, .progress-title, .recommendation-title { color:#333333; }
+	.btn-desc, .progress-text, .recommendation-desc, .date-text { color:#666666; }
+	/* #endif */
 	.welcome-section { padding: 20rpx; margin-bottom: 20rpx; }
 	.welcome-card { background: linear-gradient(135deg, #4A90E2 0%, #357ABD 100%); border-radius: 16rpx; padding: 30rpx; display: flex; justify-content: space-between; align-items: center; }
 	.user-info { display: flex; align-items: center; }

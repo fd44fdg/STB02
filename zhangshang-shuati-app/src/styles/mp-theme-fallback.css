@@ -1,0 +1,10 @@
+/* WX MiniProgram fallback static theme (no CSS variables support) */
+.mp-bg{background:#f5f5f5;}
+.mp-card{background:#ffffff;}
+.mp-card-alt{background:#f8f9fa;}
+.mp-text{color:#333333;}
+.mp-text-sec{color:#666666;}
+.mp-shadow{box-shadow:0 2rpx 10rpx rgba(0,0,0,0.05);}
+.mp-danger-bg{background:#fff7f7;}
+.mp-border{border:1rpx solid #e9ecef;}
+.mp-round{border-radius:16rpx;}

@@ -1,5 +1,5 @@
 <template>
-	<view class="profile-container">
+	<view class="profile-container mp-bg mp-semantic">
 		<!-- 用户卡片 -->
 		<view class="user-card">
 			<!-- 未登录状态 -->
@@ -456,6 +456,12 @@ export default {
 		background-color: var(--bg-color, #f5f5f5);
 		min-height: 100vh;
 	}
+	/* #ifdef MP-WEIXIN */
+	.profile-container { background:#f5f5f5; }
+	.user-card, .data-section, .menu-list .menu-item { background:#ffffff; }
+	.login-text, .data-title, .menu-text { color:#666666; }
+	.nickname, .data-value, .menu-text.logout-text { color:#333333; }
+	/* #endif */
 	
 	/* 用户信息卡片 */
 	.user-card {

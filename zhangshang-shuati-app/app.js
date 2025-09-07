@@ -34,6 +34,13 @@ App({
     console.error('小程序错误:', msg)
   },
 
+  // 捕捉未找到页面，防止后续生命周期内部状态失配
+  onPageNotFound(res) {
+    console.error('页面未找到:', res, '回退到首页')
+    // 使用 switchTab 确保 TabBar 正确恢复
+    wx.switchTab({ url: '/pages/home/home' })
+  },
+
   // 获取系统信息
   getSystemInfo() {
     wx.getSystemInfo({
@@ -183,8 +190,9 @@ App({
     this.globalData.userInfo = null
     
     // 跳转到登录页
-    wx.reLaunch({
-      url: '/pages/user/login'
-    })
+  // 修正错误路径：真实登录页为 /pages/auth/login
+  wx.reLaunch({ url: '/pages/auth/login' })
   }
 })
+
+// （已移除 QueryProbe 调试包装，保持最小运行时）

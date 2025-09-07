@@ -72,62 +72,26 @@ App.mpType = 'app'
 // 挂载用户状态到全局
 
 
+// 初始化运行时配置（H5侧从后端拉取 /system/config）
+import runtimeConfig from './utils/runtime-config'
+
 // 初始化应用
 const app = new Vue({
   store, // Pass the store to the Vue instance
   ...App
 })
 
-// 初始化用户信息
+// 恢复核心初始化（已确认页面渲染链正常）
 store.dispatch('user/fetchUserInfo').catch(err => {
   console.warn('初始化用户信息失败:', err);
 });
+runtimeConfig.init().then(()=>{
+  console.log('Runtime config loaded')
+}).catch(()=>{})
 
 // 初始化TabBar增强器
 // #ifdef H5
-try {
-  const enhancer = initTabBarEnhancer();
-  
-  // 监听页面切换
-  const originalSwitchTab = uni.switchTab;
-  uni.switchTab = function(options) {
-    const result = originalSwitchTab.call(this, options);
-    setTimeout(() => {
-      autoDetectCurrentPage();
-      // 通知增强器更新状态
-      if (enhancer) {
-        enhancer.detectCurrentPage();
-        enhancer.updateCurrentState();
-      }
-    }, 150);
-    return result;
-  };
-  
-  // 监听navigateTo页面跳转
-  const originalNavigateTo = uni.navigateTo;
-  uni.navigateTo = function(options) {
-    const result = originalNavigateTo.call(this, options);
-    setTimeout(() => {
-      if (enhancer) {
-        enhancer.detectCurrentPage();
-        enhancer.updateCurrentState();
-      }
-    }, 150);
-    return result;
-  };
-  
-  // 页面加载完成后再次检查状态
-  setTimeout(() => {
-    if (enhancer) {
-      enhancer.detectCurrentPage();
-      enhancer.updateCurrentState();
-    }
-  }, 500);
-  
-  console.log('✅ TabBar增强器初始化成功');
-} catch (error) {
-  console.warn('TabBar增强器初始化失败:', error);
-}
+// （H5 TabBar 增强器已暂时禁用）
 // #endif
 
 app.$mount()

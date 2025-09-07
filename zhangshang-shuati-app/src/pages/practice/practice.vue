@@ -1,5 +1,5 @@
 <template>
-	<view class="practice-container">
+	<view class="practice-container mp-bg mp-semantic">
 				<!-- 练习设置 -->
 		<view class="settings-card">
 			<view class="setting-item">
@@ -138,6 +138,13 @@ export default {
 	min-height: 100vh;
 	padding: 40rpx 30rpx;
 }
+/* #ifdef MP-WEIXIN */
+.practice-container { background:#f5f5f5; }
+.settings-card, .category-card { background:#ffffff; }
+.item-label text, .category-name { color:#303133; }
+.category-desc, .difficulty-option { color:#606266; }
+.difficulty-option.active { color:#4A90E2; border:1rpx solid #4A90E2; background:#ffffff; }
+/* #endif */
 
 .header {
 	margin-bottom: 40rpx;

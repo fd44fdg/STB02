@@ -70,10 +70,19 @@ cypress/videos/
 *.temp
 
 # Screenshots and images (except project assets)
+# Keep project assets under docs/assets or public/ directories
 *.png
 *.jpg
 *.jpeg
 *.gif
+
+# Secrets & keys
+*.pem
+*.key
+*密钥*.txt
+密钥.txt
+*.ppk
+*.pfx
 
 # Nginx logs
 nginx/logs/

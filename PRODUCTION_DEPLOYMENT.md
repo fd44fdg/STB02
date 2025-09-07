@@ -439,3 +439,48 @@ crontab -e
 - 保持 SSL 证书更新
 
 这套部署方案已通过 **Linus 式严格审查**，符合生产环境的安全性、可靠性和性能要求。
+
+---
+
+## 🧭 阿里云 ECS 一键部署（同域反代，示例域名：stb02.top）
+
+适用于使用 docker-compose.production.yml 的整堆部署：后端、Admin、H5、MySQL、Nginx、phpMyAdmin。
+
+1) 准备 .env.production（根目录）
+```
+PORT=3000
+ADMIN_PORT=8080
+MOBILE_PORT=8081
+DB_HOST=db
+DB_PORT=3306
+DB_USER=app_user
+DB_PASSWORD=强密码
+DB_NAME=zhangshang_shuati
+JWT_SECRET=超长随机串
+CORS_ORIGINS=https://你的域名,https://www.你的域名
+```
+
+2) Nginx
+- /api/ -> backend:3000/api/
+- /admin/ -> admin-panel:80
+- / -> mobile-app:80
+- 证书放 nginx/ssl/cert.pem 与 nginx/ssl/key.pem，取消 https server 段注释，并添加 80 -> 443 跳转。
+
+3) 起服务
+```
+docker compose -f docker-compose.production.yml up -d --build
+```
+
+4) 验收
+- https://你的域名/api/v1/health
+- https://你的域名/admin/
+- https://你的域名/
+
+### GitHub Actions 自动部署（.github/workflows/deploy-aliyun.yml）
+配置仓库 Secrets：
+- ALIYUN_HOST（ECS 公网 IP）
+- ALIYUN_USER（登录用户，例 root/ubuntu）
+- ALIYUN_SSH_KEY（OpenSSH 私钥全文）
+- 可选：PORT/ADMIN_PORT/MOBILE_PORT/DB_USER/DB_PASSWORD/DB_NAME/JWT_SECRET
+
+完成后推送到 main 或手动触发该工作流即可自动部署。

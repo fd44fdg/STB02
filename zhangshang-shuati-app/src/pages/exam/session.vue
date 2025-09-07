@@ -144,7 +144,12 @@
                 v-for="idx in filteredIndexes" 
                 :key="idx" 
                 class="grid-item"
-                :class="getStatusClass(idx)"
+                :class="{
+                  correct: statuses[idx]==='correct',
+                  wrong: statuses[idx]==='wrong',
+                  unanswered: statuses[idx]==='unanswered',
+                  current: idx===currentIndex
+                }"
                 @click="jumpToQuestion(idx)"
               >
                 {{ idx + 1 }}
@@ -249,6 +254,11 @@ export default {
       if (this.score >= 80) return '良好'
       if (this.score >= 60) return '及格'
       return '不及格'
+    },
+    // 预计算每题状态，避免模板中调用带参数方法导致小程序编译器报错
+    statuses() {
+      if (!this.questions || this.questions.length===0) return []
+      return this.questions.map((q,i)=>this.getQuestionStatus(i,q))
     }
   },
   onLoad() {
@@ -427,13 +437,9 @@ export default {
       }
     },
     getStatusClass(idx){
-      const status = this.getQuestionStatus(idx)
-      return {
-        correct: status === 'correct',
-        wrong: status === 'wrong',
-        unanswered: status === 'unanswered',
-        current: idx === this.currentIndex
-      }
+  // 兼容旧调用（已不在模板使用），保留以防外部引用
+  const status = this.getQuestionStatus(idx)
+  return { correct: status==='correct', wrong: status==='wrong', unanswered: status==='unanswered', current: idx===this.currentIndex }
     },
     jumpToQuestion(idx){
       this.currentIndex = idx

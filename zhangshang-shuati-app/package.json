@@ -74,15 +74,16 @@
     "@dcloudio/uni-quickapp-webview": "2.0.2-4070520250711001",
     "@dcloudio/uni-stacktracey": "2.0.2-4070520250711001",
     "@dcloudio/uni-stat": "2.0.2-4070520250711001",
+    "@dcloudio/uni-ui": "^1.4.28",
     "@vue/shared": "3.5.17",
     "core-js": "^3.8.3",
     "flyio": "0.6.14",
     "regenerator-runtime": "^0.14.1",
     "vue": ">= 2.6.14 < 2.7",
-    "vuex": "3.6.2",
-    "@dcloudio/uni-ui": "^1.4.28"
+    "vuex": "3.6.2"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@dcloudio/types": "^3.3.2",
     "@dcloudio/uni-automator": "2.0.2-4070520250711001",
     "@dcloudio/uni-cli-i18n": "2.0.2-4070520250711001",
