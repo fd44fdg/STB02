@@ -245,6 +245,11 @@
 					case 1: url = '/pages/question/standalone?mode=popular'; break;
 					case 2: url = '/pages/question/standalone?mode=daily'; break;
 					case 3: url = '/pages/review/review'; break;
+					case 'kp': // 若后端返回知识点推荐（示例）
+						if (item.pointId) {
+							url = `/pages/knowledge/detail?id=${item.pointId}`;
+						}
+						break;
 					default:
 						uni.hideLoading();
 						uni.showToast({ title: '功能暂未开放', icon: 'none' });
